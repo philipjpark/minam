@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Card, CardContent, Alert, CircularProgress, Chip, LinearProgress } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { parseExcelToText, formatExcelDataForAI, extractDataInsights, ExcelData } from '../utils/excelParser';
@@ -9,22 +9,27 @@ interface ExcelAPITesterProps {
   apiUrl: string;
   apiKey: string;
   onClose: () => void;
+  preUploadedFile?: File;
 }
 
-const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose }) => {
+const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose, preUploadedFile }) => {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(preUploadedFile || null);
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
+  // Auto-process pre-uploaded file
+  useEffect(() => {
+    if (preUploadedFile && !excelData) {
+      processFile(preUploadedFile);
+    }
+  }, [preUploadedFile, excelData]);
 
+  const processFile = async (file: File) => {
     setUploadedFile(file);
     setError(null);
     setIsProcessing(true);
@@ -53,6 +58,12 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
       setError(`Failed to process Excel file: ${err.message}`);
       setIsProcessing(false);
     }
+  };
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+    await processFile(file);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -178,10 +189,26 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
           ✕
         </Button>
 
-        <Typography variant="h4" gutterBottom sx={{ color: 'white', mb: 3, textAlign: 'center' }}>
+        <Typography variant="h3" gutterBottom sx={{ 
+          color: 'white', 
+          mb: 3, 
+          textAlign: 'center',
+          fontWeight: 800,
+          textShadow: '0 0 20px rgba(255, 215, 0, 0.5)',
+          background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
           🧠 Excel AI Agent Sandbox
         </Typography>
-        <Typography variant="body1" sx={{ color: '#B0BEC5', mb: 4, textAlign: 'center' }}>
+        <Typography variant="h6" sx={{ 
+          color: '#FFD700', 
+          mb: 4, 
+          textAlign: 'center',
+          fontWeight: 600,
+          textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
+        }}>
           Upload an Excel file and ask questions about your data using our AI agent
         </Typography>
 
@@ -193,9 +220,20 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
         </Typography>
 
         {/* File Upload Section */}
-        <Card sx={{ mb: 4, bgcolor: 'rgba(255, 255, 255, 0.05)' }}>
+        <Card sx={{ 
+          mb: 4, 
+          bgcolor: 'rgba(255, 255, 255, 0.08)',
+          border: '1px solid rgba(255, 215, 0, 0.2)',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+        }}>
           <CardContent>
-            <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+            <Typography variant="h5" sx={{ 
+              color: '#FFD700', 
+              mb: 2,
+              fontWeight: 700,
+              textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
+            }}>
               📊 Upload Excel File
             </Typography>
             
@@ -283,9 +321,20 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
 
         {/* Query Section */}
         {excelData && (
-          <Card sx={{ mb: 4, bgcolor: 'rgba(255, 255, 255, 0.05)' }}>
+          <Card sx={{ 
+            mb: 4, 
+            bgcolor: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 215, 0, 0.2)',
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
             <CardContent>
-              <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+              <Typography variant="h5" sx={{ 
+                color: '#FFD700', 
+                mb: 2,
+                fontWeight: 700,
+                textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
+              }}>
                 🤖 Ask Questions About Your Data
               </Typography>
               <TextField
@@ -317,9 +366,20 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
         )}
 
         {/* Raw Data Test */}
-        <Card sx={{ mb: 4, bgcolor: 'rgba(255, 255, 255, 0.05)' }}>
+        <Card sx={{ 
+          mb: 4, 
+          bgcolor: 'rgba(255, 255, 255, 0.08)',
+          border: '1px solid rgba(255, 215, 0, 0.2)',
+          borderRadius: '16px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+        }}>
           <CardContent>
-            <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+            <Typography variant="h5" sx={{ 
+              color: '#FFD700', 
+              mb: 2,
+              fontWeight: 700,
+              textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
+            }}>
               📊 Test Raw Data Access
             </Typography>
             <Button
@@ -346,9 +406,20 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
         )}
 
         {response && (
-          <Card sx={{ mt: 4, bgcolor: 'rgba(255, 255, 255, 0.05)' }}>
+          <Card sx={{ 
+            mt: 4, 
+            bgcolor: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 215, 0, 0.2)',
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
             <CardContent>
-              <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+              <Typography variant="h5" sx={{ 
+                color: '#FFD700', 
+                mb: 2,
+                fontWeight: 700,
+                textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
+              }}>
                 🤖 AI Agent Response:
               </Typography>
               <Box

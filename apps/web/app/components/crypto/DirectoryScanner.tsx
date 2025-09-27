@@ -7,7 +7,7 @@ import OpenAIService, { DirectoryAnalysis, ModelAnalysis } from '../../services/
 import ModelToggleAgent from '../../services/modelToggleAgent';
 
 interface DirectoryScannerProps {
-  onAnalysisComplete: (analysis: DirectoryAnalysis) => void;
+  onAnalysisComplete: (analysis: DirectoryAnalysis, uploadedFile?: File) => void;
   onClose: () => void;
 }
 
@@ -19,6 +19,7 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
   const [modelAnalyses, setModelAnalyses] = useState<ModelAnalysis[]>([]);
   const [bestModel, setBestModel] = useState<ModelAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDirectorySelect = () => {
@@ -34,6 +35,9 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
       console.log('No files selected');
       return;
     }
+
+    const file = files[0];
+    setUploadedFile(file); // Store the uploaded file
 
     console.log('Starting file processing...');
     setIsScanning(true);
@@ -57,11 +61,11 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
 
       // Create basic analysis for API Builder
       const completeAnalysis: DirectoryAnalysis = {
-        path: files[0].name,
+        path: file.name,
         fileCount: 1,
-        fileTypes: [files[0].type || 'unknown'],
-        totalSize: `${(files[0].size / 1024).toFixed(1)} KB`,
-        structure: { type: 'file', name: files[0].name },
+        fileTypes: [file.type || 'unknown'],
+        totalSize: `${(file.size / 1024).toFixed(1)} KB`,
+        structure: { type: 'file', name: file.name },
         dataPatterns: ['structured_data', 'queryable_content'],
         suggestedApiStructure: {
           endpoints: [
@@ -103,7 +107,7 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
       await new Promise(resolve => setTimeout(resolve, 500));
       
       console.log('File processed, starting API Builder...');
-      onAnalysisComplete(completeAnalysis);
+      onAnalysisComplete(completeAnalysis, file);
     } catch (err) {
       console.error('Error in handleFileChange:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');

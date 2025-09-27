@@ -61,10 +61,18 @@ export default function Home() {
               <span className="text-glow text-primary-gold"> Queryable APIs</span>
             </h2>
             
-            <p className="text-xl text-text-secondary max-w-3xl mx-auto mb-12 leading-relaxed">
-              Upload your data or connect a URL. Get access to raw data OR intelligent RAG systems. 
-              Our AI agents choose the best model for your data. Pay-per-query, access only what you need.
+            <p className="text-xl text-text-secondary max-w-3xl mx-auto mb-8 leading-relaxed">
+              Upload your data or connect a URL. Our AI agents choose the best model for your data. Pay-per-query, access only what you need.
             </p>
+            
+            <div className="text-center mb-12">
+              <p className="text-2xl font-bold text-primary-gold italic mb-2">
+                "Think OnlyFans for knowledge creators"
+              </p>
+              <p className="text-lg text-text-muted">
+                Monetize your expertise like never before
+              </p>
+            </div>
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -73,7 +81,7 @@ export default function Home() {
                 className="btn btn-primary text-xl px-10 py-4 group relative overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-3">
-                  💎 Create RAG API
+                  💎 API Builder
                 </span>
               </Link>
               <Link 
@@ -81,7 +89,7 @@ export default function Home() {
                 className="btn btn-outline text-xl px-10 py-4 group"
               >
                 <span className="flex items-center gap-3">
-                  🎯 Configure Tiers
+                  💰 Set Tiers
                 </span>
               </Link>
             </div>
@@ -116,7 +124,9 @@ export default function Home() {
 
             <div className="card text-center group">
               <div className="w-20 h-20 bg-gradient-secondary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl">🎯</span>
+                <svg className="w-8 h-8 text-accent-blue" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
               </div>
               <h4 className="text-2xl font-bold text-accent-blue mb-4">Set Your Tiers</h4>
               <p className="text-text-secondary leading-relaxed">
@@ -126,7 +136,9 @@ export default function Home() {
 
             <div className="card text-center group">
               <div className="w-20 h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl">💎</span>
+                <svg className="w-8 h-8 text-primary-gold" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
               </div>
               <h4 className="text-2xl font-bold text-primary-gold mb-4">Earn From Every Query</h4>
               <p className="text-text-secondary leading-relaxed">
@@ -150,7 +162,7 @@ export default function Home() {
               </h3>
               <p className="text-2xl text-text-secondary mb-12 leading-relaxed">
                 Join the knowledge creators who are already turning their expertise into 
-                <span className="text-primary-gold font-semibold"> passive income streams</span> with minam.
+                <span className="text-primary-gold font-semibold"> passive income streams</span> with <i>minam</i>.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link 
@@ -168,7 +180,7 @@ export default function Home() {
                   className="btn btn-outline text-2xl px-12 py-6 group"
                 >
                   <span className="flex items-center gap-4">
-                    💡 See The Platform
+                    💡 Check the Repo
                   </span>
                 </a>
               </div>
@@ -202,6 +214,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
   );
 }

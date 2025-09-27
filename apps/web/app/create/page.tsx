@@ -26,6 +26,7 @@ export default function Create() {
   const [directoryAnalysis, setDirectoryAnalysis] = useState<DirectoryAnalysis | null>(null);
   const [apiUrl, setApiUrl] = useState<string>('');
   const [apiKey, setApiKey] = useState<string>('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const handleAPIBuilderComplete = (url: string, key: string) => {
     setApiUrl(url);
@@ -34,8 +35,11 @@ export default function Create() {
     setShowExcelAPITester(true);
   };
 
-  const handleDirectoryAnalysisComplete = (analysis: DirectoryAnalysis) => {
+  const handleDirectoryAnalysisComplete = (analysis: DirectoryAnalysis, file?: File) => {
     setDirectoryAnalysis(analysis);
+    if (file) {
+      setUploadedFile(file);
+    }
     setShowDirectoryScanner(false);
     setShowAPIBuilder(true);
   };
@@ -193,6 +197,7 @@ export default function Create() {
         apiUrl={apiUrl}
         apiKey={apiKey}
         onClose={() => setShowExcelAPITester(false)}
+        preUploadedFile={uploadedFile}
       />
     );
   }
@@ -306,7 +311,7 @@ export default function Create() {
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-3">Blockchain Support</h3>
                   <div className="flex flex-wrap gap-2">
-                    {['Ethereum', 'Bitcoin', 'Solana', 'Polygon', 'Arbitrum', 'Optimism'].map((chain) => (
+                    {['Ethereum', 'Bitcoin', 'Solana', 'Polygon', 'Arbitrum'].map((chain) => (
                       <span key={chain} className="px-3 py-1 bg-accent-blue/20 text-accent-blue rounded-full text-sm">
                         {chain}
                       </span>
@@ -445,12 +450,6 @@ export default function Create() {
         className="btn btn-primary w-full text-lg py-4"
       >
         🚀 API Builder
-      </button>
-      <button 
-        onClick={() => setShowExcelAPITester(true)}
-        className="btn btn-outline w-full text-lg py-4"
-      >
-        📊 Excel AI Agent
       </button>
       <button 
         onClick={() => setShowSampleAPI(true)}
