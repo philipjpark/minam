@@ -7,6 +7,9 @@ import CryptoDatasetUploader from '../components/crypto/CryptoDatasetUploader';
 import RealTimeAPIDashboard from '../components/crypto/RealTimeAPIDashboard';
 import DirectoryScanner from '../components/crypto/DirectoryScanner';
 import SampleAPIDisplay from '../components/crypto/SampleAPIDisplay';
+import APITester from '../components/APITester';
+import ExcelAPITester from '../components/ExcelAPITester';
+import APIBuilder from '../components/APIBuilder';
 import CryptoAgentService, { CryptoDataset, APISpecification } from '../services/cryptoAgentService';
 import { DirectoryAnalysis } from '../services/openaiService';
 
@@ -15,74 +18,26 @@ export default function Create() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [showDirectoryScanner, setShowDirectoryScanner] = useState(false);
   const [showSampleAPI, setShowSampleAPI] = useState(false);
+  const [showAPITester, setShowAPITester] = useState(false);
+  const [showExcelAPITester, setShowExcelAPITester] = useState(false);
+  const [showAPIBuilder, setShowAPIBuilder] = useState(false);
   const [generatedAPI, setGeneratedAPI] = useState<APISpecification | null>(null);
   const [selectedDataset, setSelectedDataset] = useState<CryptoDataset | null>(null);
   const [directoryAnalysis, setDirectoryAnalysis] = useState<DirectoryAnalysis | null>(null);
+  const [apiUrl, setApiUrl] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string>('');
+
+  const handleAPIBuilderComplete = (url: string, key: string) => {
+    setApiUrl(url);
+    setApiKey(key);
+    setShowAPIBuilder(false);
+    setShowExcelAPITester(true);
+  };
 
   const handleDirectoryAnalysisComplete = (analysis: DirectoryAnalysis) => {
     setDirectoryAnalysis(analysis);
     setShowDirectoryScanner(false);
-    setShowDashboard(true);
-    
-    // Convert directory analysis to API specification
-    const apiSpec: APISpecification = {
-      id: `api-${Date.now()}`,
-      name: `Generated API from ${analysis.path}`,
-      version: '1.0.0',
-      description: `API generated from directory analysis using ${analysis.bestModel.name}`,
-      base_url: 'https://api.minam.com/v1',
-      endpoints: analysis.suggestedApiStructure?.endpoints || [],
-      authentication: analysis.suggestedApiStructure?.authentication || { type: 'api_key', required: true },
-      rate_limits: analysis.suggestedApiStructure?.rateLimits || {
-        requests_per_minute: 100,
-        requests_per_hour: 1000,
-        requests_per_day: 10000
-      },
-      pricing: {
-        free_tier: {
-          requests_per_month: 1000,
-          features: ['Basic data access', 'Standard endpoints']
-        },
-        paid_tiers: [
-          {
-            name: 'Premium',
-            price_per_month: 29.99,
-            requests_per_month: 10000,
-            features: ['Advanced filtering', 'Real-time updates', 'Priority support']
-          },
-          {
-            name: 'Enterprise',
-            price_per_month: 99.99,
-            requests_per_month: 100000,
-            features: ['Unlimited access', 'Custom endpoints', 'Dedicated support']
-          }
-        ]
-      },
-      crypto_specific: {
-        real_time_capable: true,
-        blockchain_support: [],
-        trading_pairs: [],
-        data_freshness_guarantee: '5 minutes',
-        latency_guarantee_ms: 100
-      },
-      documentation: {
-        openapi_spec: 'https://api.minam.com/docs',
-        examples: ['https://api.minam.com/examples'],
-        sdk_languages: ['javascript', 'python', 'curl']
-      },
-      deployment: {
-        status: 'development',
-        url: 'https://api.minam.com/v1',
-        health_check: 'https://api.minam.com/health',
-        monitoring: {
-          uptime: 99.9,
-          response_time_avg: 50,
-          error_rate: 0.1
-        }
-      }
-    };
-    
-    setGeneratedAPI(apiSpec);
+    setShowAPIBuilder(true);
   };
 
   const handleDatasetComplete = (dataset: CryptoDataset, requirements: any) => {
@@ -212,6 +167,36 @@ export default function Create() {
     setShowDashboard(false);
   };
 
+  // Early returns for different views
+  if (showAPIBuilder) {
+    return (
+      <APIBuilder
+        onComplete={handleAPIBuilderComplete}
+        onClose={() => setShowAPIBuilder(false)}
+      />
+    );
+  }
+
+  if (showAPITester) {
+    return (
+      <APITester
+        apiUrl={apiUrl}
+        apiKey={apiKey}
+        onClose={() => setShowAPITester(false)}
+      />
+    );
+  }
+
+  if (showExcelAPITester) {
+    return (
+      <ExcelAPITester
+        apiUrl={apiUrl}
+        apiKey={apiKey}
+        onClose={() => setShowExcelAPITester(false)}
+      />
+    );
+  }
+
   if (showSampleAPI) {
     return (
       <SampleAPIDisplay
@@ -258,13 +243,14 @@ export default function Create() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-primary rounded-2xl shadow-glow mb-6">
             <span className="text-3xl">⚡</span>
           </div>
-          <h1 className="text-5xl font-bold text-glow mb-6">
-            Monetize Your 
-            <span className="text-primary-gold"> Knowledge</span>
-          </h1>
-          <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-            Transform your data, insights, and expertise into tiered APIs that pay you every time someone accesses your knowledge
-          </p>
+    <h1 className="text-5xl font-bold text-glow mb-6">
+      Create Your 
+      <span className="text-primary-gold"> Knowledge API</span>
+    </h1>
+    <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
+      Upload your data and watch our AI agents build your intelligent API. 
+      Transparent process showing exactly how your knowledge becomes a queryable system.
+    </p>
         </div>
 
         {/* Main Content */}
@@ -454,24 +440,24 @@ export default function Create() {
             </div>
 
             <div className="space-y-4">
-              <button 
-                onClick={() => setShowUploader(true)}
-                className="btn btn-primary w-full text-lg py-4"
-              >
-                🚀 Start Creating Your API
-              </button>
-              <button 
-                onClick={() => setShowDirectoryScanner(true)}
-                className="btn btn-secondary w-full text-lg py-4"
-              >
-                📁 Scan Desktop Directory
-              </button>
-              <button 
-                onClick={() => setShowSampleAPI(true)}
-                className="btn btn-outline w-full text-lg py-4"
-              >
-                📊 View Sample API
-              </button>
+      <button 
+        onClick={() => setShowDirectoryScanner(true)}
+        className="btn btn-primary w-full text-lg py-4"
+      >
+        🚀 API Builder
+      </button>
+      <button 
+        onClick={() => setShowExcelAPITester(true)}
+        className="btn btn-outline w-full text-lg py-4"
+      >
+        📊 Excel AI Agent
+      </button>
+      <button 
+        onClick={() => setShowSampleAPI(true)}
+        className="btn btn-outline w-full text-lg py-4"
+      >
+        📋 See Example API
+      </button>
             </div>
           </div>
         </div>
@@ -508,7 +494,7 @@ export default function Create() {
             </p>
           </div>
         </div>
-    </main>
+      </main>
     </div>
   );
 }

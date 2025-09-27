@@ -109,11 +109,17 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
   const steps = [
     { label: 'Upload Dataset', description: 'Upload your crypto dataset' },
     { label: 'Configure Dataset', description: 'Set dataset parameters' },
-    { label: 'Trading Requirements', description: 'Define trading needs' },
+    { label: 'Trading Requirements', description: 'Define trading needs (optional)' },
     { label: 'Review & Generate', description: 'Review and start API generation' }
   ];
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    // Add safety check for acceptedFiles
+    if (!acceptedFiles || acceptedFiles.length === 0) {
+      console.error('No files accepted or files array is empty');
+      return;
+    }
+    
     const file = acceptedFiles[0];
     if (file) {
       setUploadedFile(file);
@@ -135,7 +141,7 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
     }
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
     onDrop,
     accept: {
       'text/csv': ['.csv'],
@@ -143,7 +149,12 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
       'application/vnd.ms-excel': ['.xls'],
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
     },
-    multiple: false
+    multiple: false,
+    maxSize: 50 * 1024 * 1024, // 50MB max file size
+    onDropRejected: (fileRejections) => {
+      console.error('File rejected:', fileRejections);
+      // You could show an error message to the user here
+    }
   });
 
   const handleNext = () => {
@@ -158,7 +169,7 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
     switch (activeStep) {
       case 0: return uploadedFile && uploadProgress === 100;
       case 1: return datasetConfig.name && datasetConfig.type && datasetConfig.blockchain.length > 0;
-      case 2: return tradingRequirements.trading_pairs.length > 0 && tradingRequirements.timeframes.length > 0;
+      case 2: return true; // Trading requirements are now optional
       case 3: return true;
       default: return false;
     }
@@ -233,6 +244,16 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
                 Supports CSV, JSON, XLS, XLSX files
               </Typography>
             </Box>
+
+            {fileRejections.length > 0 && (
+              <Box sx={{ mt: 3 }}>
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    File rejected: {fileRejections[0].errors[0]?.message || 'Invalid file type or size'}
+                  </Typography>
+                </Alert>
+              </Box>
+            )}
 
             {uploadedFile && (
               <Box sx={{ mt: 3 }}>
@@ -373,7 +394,10 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
         return (
           <Box>
             <Typography variant="h6" gutterBottom sx={{ color: 'white', mb: 3 }}>
-              Define Trading Requirements
+              Define Trading Requirements (Optional)
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 4 }}>
+              Specify trading requirements to optimize your API for specific use cases. You can skip this step and use default settings.
             </Typography>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
@@ -497,18 +521,26 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
                     <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
                       ⚡ Trading Requirements
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
-                      Pairs: <span style={{ color: 'white' }}>{tradingRequirements.trading_pairs.join(', ')}</span>
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
-                      Timeframes: <span style={{ color: 'white' }}>{tradingRequirements.timeframes.join(', ')}</span>
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
-                      Analysis: <span style={{ color: 'white' }}>{tradingRequirements.analysis_types.join(', ')}</span>
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
-                      Users: <span style={{ color: 'white' }}>{tradingRequirements.target_users.replace('_', ' ')}</span>
-                    </Typography>
+                    {tradingRequirements.trading_pairs.length > 0 || tradingRequirements.timeframes.length > 0 ? (
+                      <>
+                        <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
+                          Pairs: <span style={{ color: 'white' }}>{tradingRequirements.trading_pairs.join(', ') || 'Not specified'}</span>
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
+                          Timeframes: <span style={{ color: 'white' }}>{tradingRequirements.timeframes.join(', ') || 'Not specified'}</span>
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
+                          Analysis: <span style={{ color: 'white' }}>{tradingRequirements.analysis_types.join(', ') || 'Not specified'}</span>
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 1 }}>
+                          Users: <span style={{ color: 'white' }}>{tradingRequirements.target_users.replace('_', ' ')}</span>
+                        </Typography>
+                      </>
+                    ) : (
+                      <Typography variant="body2" sx={{ color: '#B0BEC5', fontStyle: 'italic' }}>
+                        Trading requirements skipped - using default settings
+                      </Typography>
+                    )}
                   </CardContent>
                 </Card>
               </Grid>
@@ -726,6 +758,32 @@ const CryptoDatasetUploader: React.FC<CryptoDatasetUploaderProps> = ({ onComplet
                       Step {activeStep + 1} of {steps.length}
                     </Typography>
                   </Box>
+                  
+                  {/* Show Skip button for trading requirements step */}
+                  {activeStep === 2 && (
+                    <Button
+                      variant="outlined"
+                      onClick={handleNext}
+                      sx={{
+                        color: '#B0BEC5',
+                        borderColor: 'rgba(176, 190, 197, 0.3)',
+                        borderRadius: '12px',
+                        px: 4,
+                        py: 1.5,
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        '&:hover': {
+                          borderColor: '#B0BEC5',
+                          backgroundColor: 'rgba(176, 190, 197, 0.1)'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Skip Trading Requirements
+                    </Button>
+                  )}
+                  
                   <Button
                     variant="contained"
                     onClick={activeStep === steps.length - 1 ? handleGenerateAPI : handleNext}

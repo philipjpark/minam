@@ -50,13 +50,13 @@ export default function Publish() {
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-primary rounded-2xl shadow-glow mb-6">
                 <span className="text-3xl">🚀</span>
               </div>
-              <h1 className="text-5xl font-bold text-glow mb-6">
-                Set Your Tiers & 
-                <span className="text-primary-gold"> Start Earning</span>
-              </h1>
-              <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-                Control access to your knowledge with tiered pricing. Fractionalize your data and get paid for every access
-              </p>
+    <h1 className="text-5xl font-bold text-glow mb-6">
+      Configure RAG API 
+      <span className="text-primary-gold"> Tiers & Access</span>
+    </h1>
+    <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
+      Set intelligent paywalls for your RAG API. Control access with tiered pricing - pay more, get more insights from your knowledge
+    </p>
             </div>
 
         <div className="grid lg:grid-cols-2 gap-8">

@@ -58,12 +58,12 @@ export default function Home() {
             
             <h2 className="text-3xl md:text-4xl font-semibold text-white mb-8 max-w-4xl mx-auto leading-tight">
               Turn Your Knowledge Into 
-              <span className="text-glow text-primary-gold"> Profitable APIs</span>
+              <span className="text-glow text-primary-gold"> Queryable APIs</span>
             </h2>
             
             <p className="text-xl text-text-secondary max-w-3xl mx-auto mb-12 leading-relaxed">
-              The OnlyFans for API creators. Transform your data, insights, and expertise into 
-              tiered APIs that pay you every time someone accesses your knowledge.
+              Upload your data or connect a URL. Get access to raw data OR intelligent RAG systems. 
+              Our AI agents choose the best model for your data. Pay-per-query, access only what you need.
             </p>
             
             {/* CTA Buttons */}
@@ -73,7 +73,7 @@ export default function Home() {
                 className="btn btn-primary text-xl px-10 py-4 group relative overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-3">
-                  💎 Monetize Your Knowledge
+                  💎 Create RAG API
                 </span>
               </Link>
               <Link 
@@ -81,7 +81,7 @@ export default function Home() {
                 className="btn btn-outline text-xl px-10 py-4 group"
               >
                 <span className="flex items-center gap-3">
-                  🎯 Set Your Tiers
+                  🎯 Configure Tiers
                 </span>
               </Link>
             </div>
@@ -108,9 +108,9 @@ export default function Home() {
               <div className="w-20 h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <span className="text-3xl">📊</span>
               </div>
-              <h4 className="text-2xl font-bold text-primary-gold mb-4">Upload Your Knowledge</h4>
+              <h4 className="text-2xl font-bold text-primary-gold mb-4">Upload Your Data</h4>
               <p className="text-text-secondary leading-relaxed">
-                Share your data, insights, and expertise. Our AI instantly structures and validates everything for maximum monetization potential.
+                Upload files or connect URLs. Our AI agents analyze your data and choose the best model - raw data access or intelligent RAG system.
               </p>
             </div>
 
@@ -120,7 +120,7 @@ export default function Home() {
               </div>
               <h4 className="text-2xl font-bold text-accent-blue mb-4">Set Your Tiers</h4>
               <p className="text-text-secondary leading-relaxed">
-                Control access like a pro. Create free, premium, and VIP tiers. Fractionalize your data and charge what it's worth.
+                Virtualized, fractionalized access. Pay-per-query pricing. Free tier gets basic access, Premium gets intelligent queries, Enterprise gets everything.
               </p>
             </div>
 
@@ -128,9 +128,9 @@ export default function Home() {
               <div className="w-20 h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow group-hover:scale-110 transition-transform duration-300">
                 <span className="text-3xl">💎</span>
               </div>
-              <h4 className="text-2xl font-bold text-primary-gold mb-4">Earn From Every Access</h4>
+              <h4 className="text-2xl font-bold text-primary-gold mb-4">Earn From Every Query</h4>
               <p className="text-text-secondary leading-relaxed">
-                Get paid every time someone taps into your knowledge. Real-time updates, version control, and automatic payouts.
+                Get paid every time someone accesses your data. Intelligent queryable knowledge systems sold by retailers with dynamic pricing.
               </p>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function Home() {
                   className="btn btn-primary text-2xl px-12 py-6 group relative overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-4">
-                    🚀 Start Creating APIs
+                    🚀 Start Creating RAG APIs
                   </span>
                 </Link>
                 <a 
@@ -188,7 +188,7 @@ export default function Home() {
                 
                 <div className="text-center">
                   <div className="text-3xl font-bold text-accent-blue mb-1">15K+</div>
-                  <div className="text-text-muted text-xs">APIs Monetized</div>
+                  <div className="text-text-muted text-xs">RAG APIs Created</div>
                 </div>
                 
                 <div className="w-px h-12 bg-divider"></div>

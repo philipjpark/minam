@@ -15,6 +15,7 @@ export interface ModelAnalysis {
   strengths: string[];
   weaknesses: string[];
   recommended: boolean;
+  suggestedApiStructure?: any;
 }
 
 export interface DirectoryAnalysis {
@@ -34,9 +35,14 @@ class OpenAIService {
   private baseURL: string = 'https://api.openai.com/v1';
 
   constructor() {
-    this.apiKey = process.env.OPENAI_API_KEY || '';
+    // Try to get API key from different sources
+    this.apiKey = process.env.OPENAI_API_KEY || 
+                  process.env.NEXT_PUBLIC_OPENAI_API_KEY || 
+                  '';
+    
     if (!this.apiKey) {
       console.error('OPENAI_API_KEY environment variable is not set');
+      console.error('Please set your OpenAI API key in .env.local file');
     }
   }
 
@@ -87,6 +93,12 @@ class OpenAIService {
 
   // Analyze directory structure and data patterns
   async analyzeDirectory(directoryData: any): Promise<DirectoryAnalysis> {
+    // Check if API key is available
+    if (!this.apiKey) {
+      console.warn('OpenAI API key not configured, returning mock analysis');
+      return this.getMockAnalysis(directoryData);
+    }
+
     const models = this.getAvailableModels();
     
     // Test each model with the directory data
@@ -112,9 +124,45 @@ class OpenAIService {
     };
   }
 
+  // Mock analysis for when API key is not available
+  private getMockAnalysis(directoryData: any): DirectoryAnalysis {
+    const mockModel = this.getAvailableModels()[0]; // Use first model as default
+    
+    return {
+      path: directoryData.path,
+      fileCount: directoryData.fileCount,
+      fileTypes: directoryData.fileTypes,
+      totalSize: directoryData.totalSize,
+      structure: directoryData.structure,
+      dataPatterns: directoryData.dataPatterns,
+      suggestedApiStructure: {
+        endpoints: [
+          {
+            path: '/data',
+            method: 'GET',
+            description: 'Retrieve processed data',
+            parameters: [
+              { name: 'format', type: 'string', required: false, default: 'json' },
+              { name: 'limit', type: 'number', required: false, default: 100 }
+            ]
+          }
+        ],
+        authentication: { type: 'api_key', required: true },
+        rateLimits: { requests_per_minute: 100, requests_per_hour: 1000 }
+      },
+      bestModel: mockModel,
+      modelReasoning: 'Mock analysis - OpenAI API key not configured. Please set OPENAI_API_KEY in your .env.local file to enable AI-powered analysis.'
+    };
+  }
+
   // Analyze data with a specific model
   private async analyzeWithModel(model: OpenAIModel, directoryData: any): Promise<ModelAnalysis> {
     try {
+      // Check if API key is available
+      if (!this.apiKey) {
+        throw new Error('OpenAI API key is not configured');
+      }
+      
       const prompt = this.createAnalysisPrompt(directoryData);
       
       const response = await fetch(`${this.baseURL}/chat/completions`, {
@@ -138,6 +186,17 @@ class OpenAIService {
       });
 
       const result = await response.json();
+      
+      // Check if the API call was successful
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      }
+      
+      // Check if the response has the expected structure
+      if (!result.choices || !result.choices[0] || !result.choices[0].message) {
+        throw new Error('Invalid response structure from OpenAI API');
+      }
+      
       const analysis = this.parseModelResponse(result.choices[0].message.content, model);
       
       return analysis;
@@ -229,9 +288,61 @@ Format your response as JSON with these fields:
     }
   }
 
+  // Mock API specification for when API key is not available
+  private getMockApiSpecification(analysis: DirectoryAnalysis): any {
+    return {
+      openapi: '3.0.0',
+      info: {
+        title: `API for ${analysis.path}`,
+        version: '1.0.0',
+        description: 'Mock API specification - OpenAI API key not configured'
+      },
+      servers: [
+        { url: 'https://api.minam.com/v1', description: 'Production server' }
+      ],
+      paths: {
+        '/data': {
+          get: {
+            summary: 'Retrieve processed data',
+            parameters: [
+              { name: 'format', in: 'query', schema: { type: 'string', default: 'json' } },
+              { name: 'limit', in: 'query', schema: { type: 'integer', default: 100 } }
+            ],
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            in: 'header',
+            name: 'X-API-Key'
+          }
+        }
+      },
+      security: [{ apiKey: [] }]
+    };
+  }
+
   // Generate API specification using the best model
   async generateApiSpecification(analysis: DirectoryAnalysis): Promise<any> {
     try {
+      // Check if API key is available
+      if (!this.apiKey) {
+        console.warn('OpenAI API key not configured, returning mock API specification');
+        return this.getMockApiSpecification(analysis);
+      }
+      
       const response = await fetch(`${this.baseURL}/chat/completions`, {
         method: 'POST',
         headers: this.getHeaders(),
@@ -269,6 +380,17 @@ Return as JSON.`
       });
 
       const result = await response.json();
+      
+      // Check if the API call was successful
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      }
+      
+      // Check if the response has the expected structure
+      if (!result.choices || !result.choices[0] || !result.choices[0].message) {
+        throw new Error('Invalid response structure from OpenAI API');
+      }
+      
       return JSON.parse(result.choices[0].message.content);
     } catch (error) {
       console.error('Error generating API specification:', error);
@@ -279,6 +401,11 @@ Return as JSON.`
   // Test API endpoint with sample data
   async testApiEndpoint(endpoint: string, sampleData: any): Promise<any> {
     try {
+      // Check if API key is available
+      if (!this.apiKey) {
+        throw new Error('OpenAI API key is not configured');
+      }
+      
       const response = await fetch(`${this.baseURL}/chat/completions`, {
         method: 'POST',
         headers: this.getHeaders(),
@@ -304,6 +431,17 @@ Return a realistic JSON response that would be returned by this endpoint.`
       });
 
       const result = await response.json();
+      
+      // Check if the API call was successful
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      }
+      
+      // Check if the response has the expected structure
+      if (!result.choices || !result.choices[0] || !result.choices[0].message) {
+        throw new Error('Invalid response structure from OpenAI API');
+      }
+      
       return JSON.parse(result.choices[0].message.content);
     } catch (error) {
       console.error('Error testing API endpoint:', error);

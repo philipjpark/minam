@@ -2,7 +2,7 @@ mod routes;
 mod state;
 mod models;
 
-use axum::Server;
+use axum::serve;
 use std::net::SocketAddr;
 use routes::app;
 use state::AppState;
@@ -13,8 +13,8 @@ async fn main() {
     let app = app(state);
     let addr = SocketAddr::from(([0,0,0,0], 8787));
     println!("Minam API running on http://{}/", addr);
-    Server::bind(&addr)
-        .serve(app.into_make_service())
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    serve(listener, app.into_make_service())
         .await
         .unwrap();
 }

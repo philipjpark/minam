@@ -24,6 +24,10 @@ export interface CryptoAgent {
     trading_pairs: string[];
     analysis_types: string[];
   };
+  // Additional properties for the working page
+  role?: string;
+  progress?: number;
+  currentTask?: string;
 }
 
 export interface CryptoDataset {
@@ -44,6 +48,10 @@ export interface CryptoDataset {
     price_range: { min: number; max: number };
     volume_range: { min: number; max: number };
   };
+  // Additional properties for the working page
+  blockchain?: string[];
+  quality_score?: number;
+  update_frequency?: string;
 }
 
 export interface APISpecification {
@@ -198,6 +206,156 @@ class CryptoAgentService {
       console.error('Error fetching crypto agents:', error);
       return [];
     }
+  }
+
+  // Static method to get default agents (for initial state)
+  static getCryptoAgents(): CryptoAgent[] {
+    return [
+      {
+        id: 'data-validator',
+        name: 'Data Validator',
+        type: 'data_validator',
+        status: 'idle',
+        description: 'Validates and cleans crypto datasets for quality and consistency',
+        confidence: 0.95,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.98,
+          speed: 0.85,
+          efficiency: 0.92
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.1,
+          maxTokens: 4000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT'],
+          analysis_types: ['price_data', 'volume_analysis', 'sentiment']
+        }
+      },
+      {
+        id: 'model-profiler',
+        name: 'Model Profiler',
+        type: 'model_profiler',
+        status: 'idle',
+        description: 'Analyzes data patterns and selects optimal AI models for crypto analysis',
+        confidence: 0.88,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.94,
+          speed: 0.78,
+          efficiency: 0.89
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.2,
+          maxTokens: 6000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'polygon'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'MATIC/USDT'],
+          analysis_types: ['pattern_recognition', 'model_selection', 'performance_optimization']
+        }
+      },
+      {
+        id: 'api-architect',
+        name: 'API Architect',
+        type: 'api_architect',
+        status: 'idle',
+        description: 'Designs comprehensive API specifications for crypto data monetization',
+        confidence: 0.92,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.96,
+          speed: 0.82,
+          efficiency: 0.91
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.3,
+          maxTokens: 8000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana', 'polygon'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'MATIC/USDT'],
+          analysis_types: ['api_design', 'endpoint_optimization', 'rate_limiting']
+        }
+      },
+      {
+        id: 'security-auditor',
+        name: 'Security Auditor',
+        type: 'security_auditor',
+        status: 'idle',
+        description: 'Audits API security and ensures crypto data protection standards',
+        confidence: 0.97,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.99,
+          speed: 0.75,
+          efficiency: 0.88
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.1,
+          maxTokens: 5000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT'],
+          analysis_types: ['security_audit', 'vulnerability_assessment', 'compliance_check']
+        }
+      },
+      {
+        id: 'deployment-engineer',
+        name: 'Deployment Engineer',
+        type: 'deployment_engineer',
+        status: 'idle',
+        description: 'Handles API deployment and infrastructure scaling for crypto services',
+        confidence: 0.90,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.93,
+          speed: 0.88,
+          efficiency: 0.85
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.2,
+          maxTokens: 6000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT'],
+          analysis_types: ['deployment_strategy', 'scaling_optimization', 'monitoring_setup']
+        }
+      },
+      {
+        id: 'orchestrator',
+        name: 'Orchestrator',
+        type: 'orchestrator',
+        status: 'idle',
+        description: 'Coordinates all agents and manages the complete API generation workflow',
+        confidence: 0.94,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.95,
+          speed: 0.80,
+          efficiency: 0.93
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.1,
+          maxTokens: 10000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana', 'polygon'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'MATIC/USDT'],
+          analysis_types: ['workflow_management', 'agent_coordination', 'quality_assurance']
+        }
+      }
+    ];
   }
 
   async startAgent(agentId: string, parameters?: Record<string, any>): Promise<CryptoAgentResponse> {

@@ -130,3 +130,63 @@ pub struct ApiCreate {
     pub pricing: String,
     pub human_approval_note: String,
 }
+
+// New models for file uploads and OpenAI integration
+#[derive(Serialize, Deserialize)]
+pub struct FileUploadResponse {
+    pub file_id: Uuid,
+    pub filename: String,
+    pub file_size: u64,
+    pub file_type: String,
+    pub analysis: Option<DirectoryAnalysis>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DirectoryAnalysis {
+    pub path: String,
+    pub file_count: usize,
+    pub file_types: Vec<String>,
+    pub total_size: String,
+    pub structure: serde_json::Value,
+    pub data_patterns: Vec<String>,
+    pub suggested_api_structure: Option<serde_json::Value>,
+    pub best_model: Option<ModelInfo>,
+    pub model_reasoning: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ModelInfo {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub max_tokens: u32,
+    pub cost_per_1k_tokens: f64,
+    pub capabilities: Vec<String>,
+}
+
+#[derive(Deserialize)]
+pub struct OpenAIAnalysisRequest {
+    pub file_id: Uuid,
+    pub model: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct OpenAIAnalysisResponse {
+    pub analysis: DirectoryAnalysis,
+    pub api_specification: Option<serde_json::Value>,
+    pub success: bool,
+    pub error: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct ApiSpecificationRequest {
+    pub analysis: DirectoryAnalysis,
+    pub model: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ApiSpecificationResponse {
+    pub specification: serde_json::Value,
+    pub success: bool,
+    pub error: Option<String>,
+}

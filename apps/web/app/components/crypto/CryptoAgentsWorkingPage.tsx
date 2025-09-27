@@ -51,7 +51,174 @@ const CryptoAgentsWorkingPage: React.FC<CryptoAgentsWorkingPageProps> = ({
   onComplete, 
   onClose 
 }) => {
-  const [agents, setAgents] = useState<CryptoAgent[]>(CryptoAgentService.getCryptoAgents());
+  const [agents, setAgents] = useState<CryptoAgent[]>(() => {
+    // Get default agents from the service
+    const defaultAgents = [
+      {
+        id: 'data-validator',
+        name: 'Data Validator',
+        type: 'data_validator' as const,
+        status: 'idle' as const,
+        description: 'Validates and cleans crypto datasets for quality and consistency',
+        confidence: 0.95,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.98,
+          speed: 0.85,
+          efficiency: 0.92
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.1,
+          maxTokens: 4000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT'],
+          analysis_types: ['price_data', 'volume_analysis', 'sentiment']
+        },
+        role: 'Data Validation',
+        progress: 0,
+        currentTask: 'Waiting to start'
+      },
+      {
+        id: 'model-profiler',
+        name: 'Model Profiler',
+        type: 'model_profiler' as const,
+        status: 'idle' as const,
+        description: 'Analyzes data patterns and selects optimal AI models for crypto analysis',
+        confidence: 0.88,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.94,
+          speed: 0.78,
+          efficiency: 0.89
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.2,
+          maxTokens: 6000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'polygon'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'MATIC/USDT'],
+          analysis_types: ['pattern_recognition', 'model_selection', 'performance_optimization']
+        },
+        role: 'Model Selection',
+        progress: 0,
+        currentTask: 'Waiting to start'
+      },
+      {
+        id: 'api-architect',
+        name: 'API Architect',
+        type: 'api_architect' as const,
+        status: 'idle' as const,
+        description: 'Designs comprehensive API specifications for crypto data monetization',
+        confidence: 0.92,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.96,
+          speed: 0.82,
+          efficiency: 0.91
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.3,
+          maxTokens: 8000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana', 'polygon'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'MATIC/USDT'],
+          analysis_types: ['api_design', 'endpoint_optimization', 'rate_limiting']
+        },
+        role: 'API Design',
+        progress: 0,
+        currentTask: 'Waiting to start'
+      },
+      {
+        id: 'security-auditor',
+        name: 'Security Auditor',
+        type: 'security_auditor' as const,
+        status: 'idle' as const,
+        description: 'Audits API security and ensures crypto data protection standards',
+        confidence: 0.97,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.99,
+          speed: 0.75,
+          efficiency: 0.88
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.1,
+          maxTokens: 5000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT'],
+          analysis_types: ['security_audit', 'vulnerability_assessment', 'compliance_check']
+        },
+        role: 'Security Audit',
+        progress: 0,
+        currentTask: 'Waiting to start'
+      },
+      {
+        id: 'deployment-engineer',
+        name: 'Deployment Engineer',
+        type: 'deployment_engineer' as const,
+        status: 'idle' as const,
+        description: 'Handles API deployment and infrastructure scaling for crypto services',
+        confidence: 0.90,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.93,
+          speed: 0.88,
+          efficiency: 0.85
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.2,
+          maxTokens: 6000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT'],
+          analysis_types: ['deployment_strategy', 'scaling_optimization', 'monitoring_setup']
+        },
+        role: 'Deployment',
+        progress: 0,
+        currentTask: 'Waiting to start'
+      },
+      {
+        id: 'orchestrator',
+        name: 'Orchestrator',
+        type: 'orchestrator' as const,
+        status: 'idle' as const,
+        description: 'Coordinates all agents and manages the complete API generation workflow',
+        confidence: 0.94,
+        lastUpdate: new Date().toISOString(),
+        performance: {
+          accuracy: 0.95,
+          speed: 0.80,
+          efficiency: 0.93
+        },
+        config: {
+          model: 'gpt-4o',
+          temperature: 0.1,
+          maxTokens: 10000
+        },
+        crypto_specialization: {
+          blockchain: ['ethereum', 'bitcoin', 'solana', 'polygon'],
+          trading_pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'MATIC/USDT'],
+          analysis_types: ['workflow_management', 'agent_coordination', 'quality_assurance']
+        },
+        role: 'Orchestration',
+        progress: 0,
+        currentTask: 'Waiting to start'
+      }
+    ];
+    return defaultAgents;
+  });
   const [overallProgress, setOverallProgress] = useState(0);
   const [currentPhase, setCurrentPhase] = useState('Initialization');
   const [isPaused, setIsPaused] = useState(false);
@@ -84,7 +251,7 @@ const CryptoAgentsWorkingPage: React.FC<CryptoAgentsWorkingPageProps> = ({
   const startCryptoAgentWorkflow = () => {
     addSystemLog('🚀 Starting Crypto Trading API Generation Workflow');
     addSystemLog(`📊 Processing ${dataset.type} dataset: ${dataset.name}`);
-    addSystemLog(`⛓️ Target Blockchains: ${dataset.blockchain.join(', ')}`);
+    addSystemLog(`⛓️ Target Blockchains: ${dataset.blockchain?.join(', ') || 'Not specified'}`);
     
     // Start agents with crypto-specific timing
     setTimeout(() => startAgent('data-validator'), 1000);
@@ -98,7 +265,7 @@ const CryptoAgentsWorkingPage: React.FC<CryptoAgentsWorkingPageProps> = ({
   const startAgent = (agentId: string) => {
     const agent = agents.find(a => a.id === agentId);
     if (agent) {
-      addSystemLog(`🤖 ${agent.name} is now active and beginning ${agent.role.toLowerCase()}`);
+      addSystemLog(`🤖 ${agent.name} is now active and beginning ${agent.role?.toLowerCase() || 'processing'}`);
       setCurrentPhase(`${agent.name} Phase`);
       setCurrentAgentDetails(agent.description);
       
@@ -112,16 +279,16 @@ const CryptoAgentsWorkingPage: React.FC<CryptoAgentsWorkingPageProps> = ({
       const interval = setInterval(() => {
         setAgents(prev => prev.map(a => {
           if (a.id === agentId && a.status === 'running') {
-            const newProgress = Math.min(a.progress + Math.random() * 8, 100);
+            const newProgress = Math.min((a.progress || 0) + Math.random() * 8, 100);
             
             if (newProgress >= 100) {
               clearInterval(interval);
-              addSystemLog(`✅ ${a.name} has completed ${a.role.toLowerCase()} successfully`);
+              addSystemLog(`✅ ${a.name} has completed ${a.role?.toLowerCase() || 'processing'} successfully`);
               return { ...a, status: 'completed', progress: 100 };
             }
             
             // Add crypto-specific progress logs
-            if (newProgress > a.progress && newProgress % 25 === 0) {
+            if (newProgress > (a.progress || 0) && newProgress % 25 === 0) {
               addSystemLog(`📊 ${a.name} progress: ${Math.round(newProgress)}% - ${a.currentTask}`);
             }
             

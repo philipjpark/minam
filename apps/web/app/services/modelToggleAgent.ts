@@ -200,6 +200,12 @@ class ModelToggleAgent {
 
     // Sort by score and get the best model
     scoredModels.sort((a, b) => b.score - a.score);
+    
+    // Add safety check for empty array
+    if (scoredModels.length === 0) {
+      throw new Error('No models available for scoring');
+    }
+    
     const bestModel = scoredModels[0];
     const alternatives = scoredModels.slice(1, 3).map(m => m.model.id);
 

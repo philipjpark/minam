@@ -10,6 +10,17 @@ pub struct Store {
     pub datasets: Arc<DashMap<Uuid, Dataset>>,
     pub proposals: Arc<DashMap<Uuid, ApiProposal>>,
     pub apis: Arc<DashMap<Uuid, ApiProduct>>,
+    pub files: Arc<DashMap<Uuid, FileInfo>>,
+}
+
+#[derive(Clone)]
+pub struct FileInfo {
+    pub id: Uuid,
+    pub filename: String,
+    pub file_size: u64,
+    pub file_type: String,
+    pub content: Vec<u8>,
+    pub uploaded_at: chrono::DateTime<chrono::Utc>,
 }
 
 impl Default for Store {
@@ -20,6 +31,7 @@ impl Default for Store {
             datasets: Arc::new(DashMap::new()),
             proposals: Arc::new(DashMap::new()),
             apis: Arc::new(DashMap::new()),
+            files: Arc::new(DashMap::new()),
         }
     }
 }

@@ -12,7 +12,7 @@ const Navbar = () => {
   const navItems = [
     {
       path: '/create',
-      label: 'Monetize Knowledge',
+      label: 'Create RAG API',
       icon: '💎',
       badge: 'NEW'
     },
@@ -44,7 +44,7 @@ const Navbar = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-glow">minam</span>
-                <span className="text-xs text-secondary opacity-80 font-medium">API Generator</span>
+                <span className="text-xs text-secondary opacity-80 font-medium">RAG API Generator</span>
               </div>
             </Link>
           </div>
