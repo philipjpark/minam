@@ -5,13 +5,85 @@ import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import CryptoDatasetUploader from '../components/crypto/CryptoDatasetUploader';
 import RealTimeAPIDashboard from '../components/crypto/RealTimeAPIDashboard';
+import DirectoryScanner from '../components/crypto/DirectoryScanner';
+import SampleAPIDisplay from '../components/crypto/SampleAPIDisplay';
 import CryptoAgentService, { CryptoDataset, APISpecification } from '../services/cryptoAgentService';
+import { DirectoryAnalysis } from '../services/openaiService';
 
 export default function Create() {
   const [showUploader, setShowUploader] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showDirectoryScanner, setShowDirectoryScanner] = useState(false);
+  const [showSampleAPI, setShowSampleAPI] = useState(false);
   const [generatedAPI, setGeneratedAPI] = useState<APISpecification | null>(null);
   const [selectedDataset, setSelectedDataset] = useState<CryptoDataset | null>(null);
+  const [directoryAnalysis, setDirectoryAnalysis] = useState<DirectoryAnalysis | null>(null);
+
+  const handleDirectoryAnalysisComplete = (analysis: DirectoryAnalysis) => {
+    setDirectoryAnalysis(analysis);
+    setShowDirectoryScanner(false);
+    setShowDashboard(true);
+    
+    // Convert directory analysis to API specification
+    const apiSpec: APISpecification = {
+      id: `api-${Date.now()}`,
+      name: `Generated API from ${analysis.path}`,
+      version: '1.0.0',
+      description: `API generated from directory analysis using ${analysis.bestModel.name}`,
+      base_url: 'https://api.minam.com/v1',
+      endpoints: analysis.suggestedApiStructure?.endpoints || [],
+      authentication: analysis.suggestedApiStructure?.authentication || { type: 'api_key', required: true },
+      rate_limits: analysis.suggestedApiStructure?.rateLimits || {
+        requests_per_minute: 100,
+        requests_per_hour: 1000,
+        requests_per_day: 10000
+      },
+      pricing: {
+        free_tier: {
+          requests_per_month: 1000,
+          features: ['Basic data access', 'Standard endpoints']
+        },
+        paid_tiers: [
+          {
+            name: 'Premium',
+            price_per_month: 29.99,
+            requests_per_month: 10000,
+            features: ['Advanced filtering', 'Real-time updates', 'Priority support']
+          },
+          {
+            name: 'Enterprise',
+            price_per_month: 99.99,
+            requests_per_month: 100000,
+            features: ['Unlimited access', 'Custom endpoints', 'Dedicated support']
+          }
+        ]
+      },
+      crypto_specific: {
+        real_time_capable: true,
+        blockchain_support: [],
+        trading_pairs: [],
+        data_freshness_guarantee: '5 minutes',
+        latency_guarantee_ms: 100
+      },
+      documentation: {
+        openapi_spec: 'https://api.minam.com/docs',
+        examples: ['https://api.minam.com/examples'],
+        sdk_languages: ['javascript', 'python', 'curl']
+      },
+      deployment: {
+        status: 'development',
+        url: 'https://api.minam.com/v1',
+        health_check: 'https://api.minam.com/health',
+        monitoring: {
+          uptime: 99.9,
+          response_time_avg: 50,
+          error_rate: 0.1
+        }
+      }
+    };
+    
+    setGeneratedAPI(apiSpec);
+  };
 
   const handleDatasetComplete = (dataset: CryptoDataset, requirements: any) => {
     // Generate API specification
@@ -139,6 +211,23 @@ export default function Create() {
   const handleCloseDashboard = () => {
     setShowDashboard(false);
   };
+
+  if (showSampleAPI) {
+    return (
+      <SampleAPIDisplay
+        onClose={() => setShowSampleAPI(false)}
+      />
+    );
+  }
+
+  if (showDirectoryScanner) {
+    return (
+      <DirectoryScanner
+        onAnalysisComplete={handleDirectoryAnalysisComplete}
+        onClose={() => setShowDirectoryScanner(false)}
+      />
+    );
+  }
 
   if (showUploader) {
     return (
@@ -371,8 +460,17 @@ export default function Create() {
               >
                 🚀 Start Creating Your API
               </button>
-              <button className="btn btn-outline w-full text-lg py-4">
-                📊 View Sample APIs
+              <button 
+                onClick={() => setShowDirectoryScanner(true)}
+                className="btn btn-secondary w-full text-lg py-4"
+              >
+                📁 Scan Desktop Directory
+              </button>
+              <button 
+                onClick={() => setShowSampleAPI(true)}
+                className="btn btn-outline w-full text-lg py-4"
+              >
+                📊 View Sample API
               </button>
             </div>
           </div>
