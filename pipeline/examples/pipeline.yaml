@@ -1,0 +1,10 @@
+# Minimal pipeline recipe (pseudo‑YAML)
+dataset_id: <fill-after-create>
+model_profile_id: <fill-after-create>
+min_coverage: 0.8  # require 80% non-null across features
+steps:
+  - ingest: csv/json upload
+  - map: columns -> features (by name)
+  - eval: coverage/nulls, basic drift
+  - hitl: human note required
+  - publish: versioned API

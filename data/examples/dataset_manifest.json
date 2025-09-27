@@ -1,0 +1,27 @@
+{
+  "name": "Acme Crypto Ticks",
+  "description": "Spot ticks + perp funding joined; 1-min bars",
+  "rows": [
+    {
+      "symbol": "SOL",
+      "ts": "2025-09-26T09:00:00Z",
+      "price": 150.12,
+      "rvol_5m": 3.1,
+      "funding_1h": -0.01
+    },
+    {
+      "symbol": "SOL",
+      "ts": "2025-09-26T09:01:00Z",
+      "price": 150.33,
+      "rvol_5m": 3.3,
+      "funding_1h": -0.012
+    },
+    {
+      "symbol": "ETH",
+      "ts": "2025-09-26T09:00:00Z",
+      "price": 3200.5,
+      "rvol_5m": 1.8,
+      "funding_1h": 0.002
+    }
+  ]
+}

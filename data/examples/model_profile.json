@@ -1,0 +1,27 @@
+{
+  "name": "gpt5-trade-signal",
+  "version": "1",
+  "description": "Features expected by GPT-5 for intraday crypto signal prompts",
+  "features": [
+    {
+      "name": "symbol",
+      "dtype": "string"
+    },
+    {
+      "name": "ts",
+      "dtype": "datetime"
+    },
+    {
+      "name": "price",
+      "dtype": "number"
+    },
+    {
+      "name": "rvol_5m",
+      "dtype": "number"
+    },
+    {
+      "name": "funding_1h",
+      "dtype": "number"
+    }
+  ]
+}
