@@ -2,7 +2,7 @@
 
 # minam 미남
 
-<img src="apps/web/public/james-dean-logo.png" alt="James Dean Logo" width="120" height="120" style="border-radius: 50%; margin-bottom: 20px;">
+<img src="https://raw.githubusercontent.com/philipjpark/minam/main/apps/web/public/james-dean-logo.png" alt="James Dean Logo" width="120" height="120" style="border-radius: 50%; margin-bottom: 20px;">
 
 ## The OnlyFans for API Creators
 
