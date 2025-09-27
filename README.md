@@ -6,7 +6,7 @@
 
 ## The OnlyFans for API Creators
 
-*"Show your knowledge, not your skin."*
+*"Your knowledge is about to pay you handsomely."*
 
 </div>
 

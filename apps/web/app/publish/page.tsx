@@ -223,9 +223,9 @@ export default function Publish() {
             <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-glow group-hover:scale-110 transition-transform duration-300">
               <span className="text-2xl">👥</span>
             </div>
-            <h4 className="text-xl font-bold text-primary-gold mb-3">Human Approval</h4>
+            <h4 className="text-xl font-bold text-primary-gold mb-3">Human in the Loop</h4>
             <p className="text-text-secondary leading-relaxed">
-              Our expert team validates every API to ensure maximum quality and profitability
+              AI agents work alongside human experts to validate and optimize every API for maximum performance
             </p>
           </div>
 

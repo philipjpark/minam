@@ -47,10 +47,13 @@ export default function Home() {
               >
                 minam
               </span>
+              <span className="text-4xl md:text-5xl lg:text-6xl font-bold ml-4 text-primary-gold opacity-80">
+                미남
+              </span>
             </h1>
             
             <p className="text-2xl text-primary-gold mb-6 italic opacity-90 font-light">
-              "Show your knowledge, not your skin."
+              "Your knowledge is about to pay you handsomely."
             </p>
             
             <h2 className="text-3xl md:text-4xl font-semibold text-white mb-8 max-w-4xl mx-auto leading-tight">
@@ -171,16 +174,31 @@ export default function Home() {
               </div>
           
           {/* Social Proof */}
-          <div className="mt-16 pt-8 border-t border-divider">
-            <p className="text-text-muted text-sm mb-4">Trusted by knowledge creators worldwide</p>
-            <div className="flex justify-center items-center space-x-8 opacity-60">
-              <div className="text-2xl font-bold text-primary-gold">$2.3M+</div>
-              <div className="text-text-muted">•</div>
-              <div className="text-2xl font-bold text-accent-blue">15K+</div>
-              <div className="text-text-muted">•</div>
-              <div className="text-2xl font-bold text-primary-gold">99.9%</div>
+          <div className="mt-20 pt-12 border-t border-divider">
+            <div className="text-center">
+              <p className="text-text-muted text-sm mb-8 font-medium">Trusted by knowledge creators worldwide</p>
+              
+              <div className="flex justify-center items-center space-x-12 mb-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary-gold mb-1">$2.3M+</div>
+                  <div className="text-text-muted text-xs">Creator Earnings</div>
+                </div>
+                
+                <div className="w-px h-12 bg-divider"></div>
+                
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-accent-blue mb-1">15K+</div>
+                  <div className="text-text-muted text-xs">APIs Monetized</div>
+                </div>
+                
+                <div className="w-px h-12 bg-divider"></div>
+                
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary-gold mb-1">99.9%</div>
+                  <div className="text-text-muted text-xs">Uptime</div>
+                </div>
+              </div>
             </div>
-            <p className="text-text-muted text-xs mt-2">Creator Earnings • APIs Monetized • Uptime</p>
           </div>
         </div>
       </div>
