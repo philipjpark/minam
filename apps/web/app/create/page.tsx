@@ -170,11 +170,11 @@ export default function Create() {
             <span className="text-3xl">⚡</span>
           </div>
           <h1 className="text-5xl font-bold text-glow mb-6">
-            Create Your 
-            <span className="text-primary-gold"> Crypto Trading API</span>
+            Monetize Your 
+            <span className="text-primary-gold"> Knowledge</span>
           </h1>
           <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-            Transform your crypto data into high-performance trading APIs with real-time updates for on-chain traders
+            Transform your data, insights, and expertise into tiered APIs that pay you every time someone accesses your knowledge
           </p>
         </div>
 

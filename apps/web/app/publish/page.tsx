@@ -51,11 +51,11 @@ export default function Publish() {
                 <span className="text-3xl">🚀</span>
               </div>
               <h1 className="text-5xl font-bold text-glow mb-6">
-                Publish & 
+                Set Your Tiers & 
                 <span className="text-primary-gold"> Start Earning</span>
               </h1>
               <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-                Launch your API to our marketplace and watch the money roll in with every call
+                Control access to your knowledge with tiered pricing. Fractionalize your data and get paid for every access
               </p>
             </div>
 

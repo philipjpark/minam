@@ -12,14 +12,14 @@ const Navbar = () => {
   const navItems = [
     {
       path: '/create',
-      label: 'Create Dataset',
-      icon: '✨',
+      label: 'Monetize Knowledge',
+      icon: '💎',
       badge: 'NEW'
     },
     {
       path: '/publish',
-      label: 'Publish API',
-      icon: '🚀',
+      label: 'Set Tiers',
+      icon: '🎯',
       badge: null
     }
   ];
