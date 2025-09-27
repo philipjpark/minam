@@ -50,7 +50,7 @@ export default function Home() {
             </h1>
             
             <p className="text-2xl text-primary-gold mb-6 italic opacity-90 font-light">
-              "Hey Trader, your data never looked so good."
+              "Where knowledge is skin."
             </p>
             
             <h2 className="text-3xl md:text-4xl font-semibold text-white mb-8 max-w-4xl mx-auto leading-tight">

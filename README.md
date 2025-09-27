@@ -6,7 +6,7 @@
 
 ## Creating API data never looked so good
 
-*"Hey Trader, your data never looked so good."*
+*"Where knowledge is skin."*
 
 </div>
 
