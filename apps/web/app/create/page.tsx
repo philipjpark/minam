@@ -32,8 +32,10 @@ export default function Create() {
   const handleAPIBuilderComplete = (url: string, key: string, files?: any[]) => {
     setApiUrl(url);
     setApiKey(key);
-    if (files) {
+    if (files && files.length > 0) {
       setUploadedFiles(files);
+      // Extract the first file object for preUploadedFile
+      setUploadedFile(files[0].file);
     }
     setShowAPIBuilder(false);
     setShowExcelAPITester(true);

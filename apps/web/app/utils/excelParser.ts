@@ -28,11 +28,22 @@ export function parseExcelToText(file: File): Promise<ExcelData> {
           return;
         }
 
+        // Check if XLSX is available
+        if (!XLSX || typeof XLSX.read !== 'function') {
+          throw new Error('XLSX library not properly loaded');
+        }
+
         // Parse Excel file using xlsx library
         const workbook = XLSX.read(data, { type: 'array' });
+        
+        if (!workbook || !workbook.SheetNames) {
+          throw new Error('Invalid Excel file format');
+        }
+        
         const excelData = parseWorkbook(workbook, file);
         resolve(excelData);
       } catch (error) {
+        console.error('Excel parsing error:', error);
         reject(error);
       }
     };
