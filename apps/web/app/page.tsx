@@ -23,7 +23,7 @@ export default function Home() {
             {/* Badge */}
             <div className="inline-flex items-center px-6 py-3 rounded-full glass-effect border border-primary-gold/30 text-primary-gold text-sm font-semibold mb-12 shadow-glow">
               <span className="w-2 h-2 bg-primary-gold rounded-full mr-3 animate-pulse"></span>
-              Enterprise-Grade API Generator
+              Cryptocentric API Generator
             </div>
             
             {/* Logo Display */}
