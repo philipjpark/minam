@@ -17,32 +17,43 @@ Just like OnlyFans and YouTube revolutionized content creation, we're revolution
 ## 🚀 **What's New**
 
 - **🔐 Secure API Keys**: Environment variable setup with `.env.local`
-- **🤖 ChatGPT-5 Integration**: Latest AI model with automatic selection
+- **🤖 GPT-4o Integration**: Reliable AI model with automatic selection
 - **📁 Multi-Format File Support**: Upload Excel, CSV, and PDF files
 - **🎯 Dynamic Data Validator**: AI-powered real-time file analysis
 - **📊 Smart Model Selection**: AI automatically selects the best model for your data
 - **💰 Tiered Monetization**: Free, Premium ($29.99), Enterprise ($99.99) pricing
 - **🔄 Real-time Agent Transparency**: Hover over completed agents to see their reasoning
+- **🔗 Database Integration**: Connect to Supabase databases directly
+- **📊 File Persistence**: Seamless file transfer from API Builder to Sandbox
+- **🛡️ Robust Error Handling**: Graceful fallbacks for all file processing
 
 ## 🆕 **Latest Updates**
 
-### Dynamic Data Validator Agent
-- **Real-time Analysis**: No more hardcoded responses - the Data Validator now analyzes your actual file content
-- **OpenAI Integration**: Uses GPT-5 to provide accurate file metrics (type, rows, quality score, missing values)
-- **File Type Detection**: Automatically detects Excel, CSV, and PDF files
-- **Quality Assessment**: Calculates real data quality scores and identifies missing values
+### 🔗 Database Integration
+- **Supabase Connection**: Connect directly to your Supabase database
+- **Manual Table Import**: Enter table names manually when auto-discovery fails
+- **Real-time Data Fetching**: Import table data directly into your API
+- **Generic Interface**: Clean "Connect URL" interface without platform-specific references
 
-### Enhanced File Support
-- **PDF Upload**: Upload PDF files with basic content analysis
-- **Multi-format Processing**: Seamless handling of Excel, CSV, and PDF files
-- **File Persistence**: Files persist through the entire API creation workflow
-- **Error Handling**: Robust error handling with graceful fallbacks
+### 📊 Enhanced File Processing
+- **File Persistence**: Files uploaded in API Builder automatically appear in Sandbox
+- **Robust Error Handling**: Graceful fallbacks when Excel parsing fails
+- **Multi-format Support**: Excel (.xlsx, .xls), CSV (.csv), PDF (.pdf) files
+- **Dynamic Analysis**: Real-time file content analysis using OpenAI API
+- **Fallback Mode**: System continues working even with parsing issues
 
-### Improved User Experience
-- **Removed Test Raw Data Access**: Streamlined interface focused on AI-powered analysis
-- **Better File Upload UI**: Clearer labels and improved drag & drop experience
+### 🎯 Improved User Experience
+- **Streamlined Interface**: Removed redundant tabs and simplified navigation
+- **Better Error Messages**: Clear feedback for all operations
+- **File Status Indicators**: Visual feedback showing file processing status
+- **Seamless Workflow**: Smooth transition from API Builder to Sandbox
 - **Agent Transparency**: Hover over completed agents to see detailed reasoning
-- **Real-time Feedback**: Dynamic updates based on actual file content
+
+### 🛡️ Technical Improvements
+- **Fixed Initialization Errors**: Resolved function hoisting issues
+- **Better State Management**: Proper file data flow between components
+- **Enhanced Validation**: Improved input validation and error handling
+- **Performance Optimization**: Faster file processing and UI updates
 
 ## Quick Start
 
@@ -113,7 +124,7 @@ Our AI agents work like a professional team, each with specialized roles:
 - **🔒 Security Auditor**: Implements security measures and compliance
 - **🚀 Deployment Engineer**: Deploys to production with monitoring
 - **⚙️ Orchestrator**: Coordinates the entire pipeline
-- **🎯 Model Toggle Agent**: Automatically selects best AI model (ChatGPT-5, Codex, GPT-4 Omega)
+- **🎯 Model Toggle Agent**: Automatically selects best AI model (GPT-4o, Codex, GPT-4 Omega)
 - **📊 Performance Monitor**: Tracks usage, costs, and optimization opportunities
 
 ## Human‑in‑the‑Loop
@@ -122,7 +133,7 @@ A publish requires a **green pass** on automated checks **and** a human approval
 ## 🎯 Key Features
 
 ### 🤖 **AI Model Toggle Agent**
-- **3 OpenAI Models**: ChatGPT-5, Codex, GPT-4 Omega
+- **3 OpenAI Models**: GPT-4o, Codex, GPT-4 Omega
 - **Automatic Selection**: AI chooses the best model for your specific dataset
 - **Performance Optimization**: Learns from usage to improve recommendations
 - **Cost Intelligence**: Balances performance vs cost based on your data
@@ -133,6 +144,8 @@ A publish requires a **green pass** on automated checks **and** a human approval
 - **Dynamic Analysis**: Data Validator provides real metrics from actual file content
 - **Model Reasoning**: Explains why each model is best for your data
 - **PDF Support**: Basic PDF upload with AI content analysis
+- **File Persistence**: Files seamlessly transfer from API Builder to Sandbox
+- **Robust Parsing**: Graceful fallbacks when file processing encounters issues
 
 ### 🎯 **Tiered Monetization**
 - **Free Tier**: Basic data access (1,000 requests/month)
@@ -145,6 +158,13 @@ A publish requires a **green pass** on automated checks **and** a human approval
 - **Real-time Updates**: API automatically updates when you improve your data
 - **Access Control**: Manage who gets access based on payment tiers
 - **Live Orchestration**: AI agents handle deployment and auditing
+
+### 🔗 **Database Integration**
+- **Supabase Connection**: Connect directly to your Supabase database
+- **Manual Table Import**: Enter table names when auto-discovery fails
+- **Real-time Data Fetching**: Import table data directly into your API
+- **Generic Interface**: Clean "Connect URL" interface for any database
+- **Data Validation**: Automatic validation of imported database data
 
 ## 🛠️ Tech Stack
 
@@ -159,11 +179,13 @@ A publish requires a **green pass** on automated checks **and** a human approval
 
 1. **Visit the App**: Go to `http://localhost:3000`
 2. **Create APIs**: Click "🚀 Create Agentic APIs"
-3. **Upload Files**: Drag & drop Excel, CSV, or PDF files
+3. **Choose Data Source**: 
+   - Upload files (Excel, CSV, PDF) or
+   - Connect to database (Supabase)
 4. **Watch AI Work**: See dynamic Data Validator analyze your actual file content
 5. **Agent Transparency**: Hover over completed agents to see their reasoning
-6. **Set Tiers**: Configure pricing and access levels
-7. **Test Your API**: Use the sandbox to interact with your data
+6. **Enter Sandbox**: Test your API with the uploaded data
+7. **Set Tiers**: Configure pricing and access levels
 8. **Start Earning**: Get paid every time someone accesses your API
 
 ## 💡 Use Cases
@@ -197,6 +219,9 @@ npm run build
 - **Real-time Updates**: < 5 second latency
 - **Dynamic Analysis**: Real-time file content analysis using OpenAI API
 - **File Processing**: Supports Excel, CSV, and PDF files up to 10MB
+- **Database Integration**: Direct connection to Supabase with manual fallback
+- **File Persistence**: Seamless data flow between components
+- **Error Recovery**: Graceful fallbacks for all processing operations
 - **Uptime**: 99.9% availability
 
 ## 🤝 Contributing
