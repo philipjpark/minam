@@ -27,10 +27,14 @@ export default function Create() {
   const [apiUrl, setApiUrl] = useState<string>('');
   const [apiKey, setApiKey] = useState<string>('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 
-  const handleAPIBuilderComplete = (url: string, key: string) => {
+  const handleAPIBuilderComplete = (url: string, key: string, files?: any[]) => {
     setApiUrl(url);
     setApiKey(key);
+    if (files) {
+      setUploadedFiles(files);
+    }
     setShowAPIBuilder(false);
     setShowExcelAPITester(true);
   };
@@ -171,7 +175,9 @@ export default function Create() {
     setShowDashboard(false);
   };
 
+
   // Early returns for different views
+
   if (showAPIBuilder) {
     return (
       <APIBuilder
@@ -192,16 +198,17 @@ export default function Create() {
     );
   }
 
-  if (showExcelAPITester) {
-    return (
-      <ExcelAPITester
-        apiUrl={apiUrl}
-        apiKey={apiKey}
-        onClose={() => setShowExcelAPITester(false)}
-        preUploadedFile={uploadedFile || undefined}
-      />
-    );
-  }
+      if (showExcelAPITester) {
+        return (
+          <ExcelAPITester
+            apiUrl={apiUrl}
+            apiKey={apiKey}
+            onClose={() => setShowExcelAPITester(false)}
+            preUploadedFile={uploadedFile || undefined}
+            uploadedFiles={uploadedFiles}
+          />
+        );
+      }
 
   if (showSampleAPI) {
     return (
@@ -257,6 +264,29 @@ export default function Create() {
       Upload your data and watch our AI agents build your intelligent API. 
       Transparent process showing exactly how your knowledge becomes a queryable system.
     </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="text-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => setShowAPIBuilder(true)}
+              className="btn btn-primary text-xl px-8 py-4 group relative overflow-hidden"
+            >
+              <span className="relative z-10 flex items-center gap-3">
+                🚀 API Builder
+              </span>
+            </button>
+            
+            <button
+              onClick={() => setShowSampleAPI(true)}
+              className="btn btn-outline text-xl px-8 py-4 group relative overflow-hidden"
+            >
+              <span className="relative z-10 flex items-center gap-3">
+                📋 See Example API
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
@@ -379,12 +409,12 @@ export default function Create() {
                       <code className="text-accent-blue">GET /api/v1/risk</code>
                       <span className="text-text-muted">Risk assessment</span>
                     </div>
-                    <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
                       <code className="text-accent-blue">WS /api/v1/stream</code>
                       <span className="text-text-muted">Live data feed</span>
                     </div>
                   </div>
-                </div>
+      </div>
 
                 <div className="bg-background-elevated rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-primary-gold mb-2">Performance</h3>
@@ -393,11 +423,11 @@ export default function Create() {
                       <span className="text-text-muted">Response Time:</span>
                       <span className="text-white ml-2">12ms</span>
                     </div>
-                    <div>
+          <div>
                       <span className="text-text-muted">Uptime:</span>
                       <span className="text-white ml-2">99.9%</span>
-                    </div>
-                    <div>
+          </div>
+          <div>
                       <span className="text-text-muted">Rate Limit:</span>
                       <span className="text-white ml-2">1000/min</span>
           </div>
@@ -446,18 +476,6 @@ export default function Create() {
             </div>
 
             <div className="space-y-4">
-      <button 
-        onClick={() => setShowDirectoryScanner(true)}
-        className="btn btn-primary w-full text-lg py-4"
-      >
-        🚀 API Builder
-      </button>
-      <button 
-        onClick={() => setShowSampleAPI(true)}
-        className="btn btn-outline w-full text-lg py-4"
-      >
-        📋 See Example API
-      </button>
             </div>
           </div>
         </div>
@@ -494,7 +512,7 @@ export default function Create() {
             </p>
           </div>
         </div>
-      </main>
+    </main>
     </div>
   );
 }

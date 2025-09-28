@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, LinearProgress, Chip, Button, Alert } from '@mui/material';
+import { Box, Typography, Card, CardContent, LinearProgress, Chip, Button, Alert, TextField } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDropzone } from 'react-dropzone';
+import SupabaseService from '../services/supabaseService';
 
 interface APIBuilderProps {
-  onComplete: (apiUrl: string, apiKey: string) => void;
+  onComplete: (apiUrl: string, apiKey: string, uploadedFiles?: any[]) => void;
   onClose: () => void;
   fileData?: any; // Add file data prop
 }
@@ -22,8 +24,257 @@ interface Agent {
   confidence: number;
 }
 
+interface UploadedFile {
+  id: string;
+  file: File;
+  data: any;
+  status: 'uploading' | 'processing' | 'completed' | 'error';
+  progress: number;
+  error?: string;
+}
+
 const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [showFileUpload, setShowFileUpload] = useState(true);
+  const [workflowStarted, setWorkflowStarted] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState<'upload' | 'supabase'>('upload');
+  const [supabaseUrl, setSupabaseUrl] = useState('');
+  const [supabaseKey, setSupabaseKey] = useState('');
+  const [supabaseTables, setSupabaseTables] = useState<any[]>([]);
+  const [selectedTable, setSelectedTable] = useState('');
+  const [isLoadingSupabase, setIsLoadingSupabase] = useState(false);
+  const [supabaseError, setSupabaseError] = useState<string | null>(null);
+  const [manualTableName, setManualTableName] = useState('');
+  const [showManualTableInput, setShowManualTableInput] = useState(false);
+
+  const handleContinueWithFiles = () => {
+    setShowFileUpload(false);
+    setCurrentStep(1);
+    setWorkflowStarted(true);
+    // Start the agent workflow after files are uploaded
+    startAgentWorkflow();
+  };
+
+  const processFile = async (file: File): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          if (file.type === 'application/pdf') {
+            // PDF processing - create mock data for now
+            const mockData = {
+              fileName: file.name,
+              sheets: [{
+                name: 'PDF Content',
+                data: [
+                  ['PDF Document: ' + file.name],
+                  ['File Size: ' + (file.size / 1024 / 1024).toFixed(2) + ' MB'],
+                  ['Document Type: PDF'],
+                  ['Status: Ready for AI analysis']
+                ],
+                rows: 4,
+                columns: 1
+              }],
+              totalRows: 4,
+              totalColumns: 1,
+              fileSize: file.size
+            };
+            resolve(mockData);
+          } else {
+            // Excel/CSV processing
+            const arrayBuffer = e.target?.result as ArrayBuffer;
+            if (!arrayBuffer) {
+              reject(new Error('Failed to read file'));
+              return;
+            }
+
+            // Import xlsx dynamically
+            const XLSX = (await import('xlsx')).default;
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            
+            const sheets = workbook.SheetNames.map(sheetName => {
+              const worksheet = workbook.Sheets[sheetName];
+              const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+              return {
+                name: sheetName,
+                data: data,
+                rows: data.length,
+                columns: data[0]?.length || 0
+              };
+            });
+
+            const fileData = {
+              fileName: file.name,
+              sheets: sheets,
+              totalRows: sheets.reduce((sum, sheet) => sum + sheet.rows, 0),
+              totalColumns: Math.max(...sheets.map(sheet => sheet.columns)),
+              fileSize: file.size
+            };
+
+            resolve(fileData);
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const onDrop = async (acceptedFiles: File[]) => {
+    const newFiles: UploadedFile[] = [];
+
+    for (const file of acceptedFiles) {
+      const fileId = `${file.name}-${Date.now()}-${Math.random()}`;
+      
+      // Add file to state immediately
+      const uploadedFile: UploadedFile = {
+        id: fileId,
+        file: file,
+        data: null,
+        status: 'uploading',
+        progress: 0
+      };
+
+      newFiles.push(uploadedFile);
+      setUploadedFiles(prev => [...prev, uploadedFile]);
+
+      try {
+        // Simulate progress
+        const progressInterval = setInterval(() => {
+          setUploadedFiles(prev => prev.map(f => 
+            f.id === fileId 
+              ? { ...f, progress: Math.min(f.progress + 10, 90) }
+              : f
+          ));
+        }, 200);
+
+        // Process file
+        const fileData = await processFile(file);
+        
+        clearInterval(progressInterval);
+        
+        setUploadedFiles(prev => prev.map(f => 
+          f.id === fileId 
+            ? { 
+                ...f, 
+                data: fileData, 
+                status: 'completed', 
+                progress: 100 
+              }
+            : f
+        ));
+      } catch (error) {
+        setUploadedFiles(prev => prev.map(f => 
+          f.id === fileId 
+            ? { 
+                ...f, 
+                status: 'error', 
+                error: error instanceof Error ? error.message : 'Unknown error',
+                progress: 0
+              }
+            : f
+        ));
+      }
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
+      'text/csv': ['.csv'],
+      'application/pdf': ['.pdf']
+    },
+    multiple: true,
+    maxSize: 10 * 1024 * 1024, // 10MB max per file
+  });
+
+  const removeFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+
+  const connectToSupabase = async () => {
+    if (!supabaseUrl.trim()) {
+      setSupabaseError('Please enter a database URL');
+      return;
+    }
+
+    if (!supabaseKey.trim()) {
+      setSupabaseError('Please enter an API key');
+      return;
+    }
+
+    setIsLoadingSupabase(true);
+    setSupabaseError(null);
+
+    try {
+      const supabase = new SupabaseService(supabaseUrl.trim(), supabaseKey.trim());
+      const isConnected = await supabase.testConnection();
+
+      if (!isConnected) {
+        throw new Error('Failed to connect to database');
+      }
+
+      const tables = await supabase.getTables();
+      setSupabaseTables(tables);
+      
+      // If no tables found automatically, show manual input option
+      if (tables.length === 0) {
+        setShowManualTableInput(true);
+      }
+    } catch (error) {
+      setSupabaseError(error instanceof Error ? error.message : 'Failed to connect to database');
+    } finally {
+      setIsLoadingSupabase(false);
+    }
+  };
+
+  const fetchSupabaseTable = async (tableName: string) => {
+    if (!supabaseUrl.trim()) return;
+
+    setIsLoadingSupabase(true);
+    setSupabaseError(null);
+
+    try {
+      const supabase = new SupabaseService(supabaseUrl.trim(), supabaseKey.trim() || undefined);
+      const tableData = await supabase.fetchTableData(tableName);
+
+      // Convert Supabase data to UploadedFile format
+      const fileId = `${tableName}-${Date.now()}-${Math.random()}`;
+      const uploadedFile: UploadedFile = {
+        id: fileId,
+        file: new File([], `${tableName}_supabase_data.xlsx`, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+        data: tableData,
+        status: 'completed',
+        progress: 100
+      };
+
+      setUploadedFiles(prev => [...prev, uploadedFile]);
+    } catch (error) {
+      setSupabaseError(error instanceof Error ? error.message : 'Failed to fetch table data');
+    } finally {
+      setIsLoadingSupabase(false);
+    }
+  };
+
+  const fetchManualTable = async () => {
+    if (!manualTableName.trim()) {
+      setSupabaseError('Please enter a table name');
+      return;
+    }
+
+    await fetchSupabaseTable(manualTableName.trim());
+    setManualTableName('');
+    setShowManualTableInput(false);
+  };
+
   const [agents, setAgents] = useState<Agent[]>([
     {
       id: 'data-validator',
@@ -203,9 +454,7 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
     }
   ];
 
-  useEffect(() => {
-    startAgentWorkflow();
-  }, []);
+  // Remove automatic start - agents will start when user clicks continue
 
   const startAgentWorkflow = async () => {
     for (let i = 0; i < agents.length; i++) {
@@ -222,8 +471,8 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
     setIsComplete(true);
   };
 
-  const analyzeFileData = async (fileData: any) => {
-    if (!fileData) {
+  const analyzeFileData = async () => {
+    if (uploadedFiles.length === 0) {
       return {
         fileType: 'Unknown',
         dataRows: 0,
@@ -234,17 +483,17 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
     }
 
     try {
-      // Convert DirectoryAnalysis format to the format expected by analyze-file API
-      const convertedFileData = {
-        fileName: fileData.path || 'Unknown',
-        fileSize: 0, // DirectoryAnalysis doesn't have fileSize
-        totalRows: fileData.fileCount || 0,
-        totalColumns: fileData.fileTypes?.length || 0,
-        sheets: [{
-          name: 'Directory Structure',
-          data: fileData.dataPatterns?.map((pattern: string) => [pattern]) || [['No patterns detected']]
-        }]
-      };
+      // Use the first uploaded file for analysis
+      const firstFile = uploadedFiles[0];
+      if (!firstFile.data) {
+        return {
+          fileType: 'Unknown',
+          dataRows: 0,
+          qualityScore: 0,
+          missingValues: 0,
+          schemaGenerated: false
+        };
+      }
 
       // Call OpenAI API to analyze the file data
       const response = await fetch('/api/analyze-file', {
@@ -253,7 +502,7 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fileData: convertedFileData,
+          fileData: firstFile.data,
           analysisType: 'data-validation'
         })
       });
@@ -267,9 +516,10 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
     } catch (error) {
       console.error('Error analyzing file data:', error);
       // Fallback to basic analysis
+      const firstFile = uploadedFiles[0];
       return {
-        fileType: fileData.fileTypes?.[0]?.toUpperCase() || 'Unknown',
-        dataRows: fileData.fileCount || 0,
+        fileType: firstFile?.data?.fileName?.split('.').pop()?.toUpperCase() || 'Unknown',
+        dataRows: firstFile?.data?.totalRows || 0,
         qualityScore: 85,
         missingValues: 5,
         schemaGenerated: true
@@ -293,19 +543,19 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
       const task = agentConfig.tasks[taskIndex];
       const progress = ((taskIndex + 1) / agentConfig.tasks.length) * 100;
       
-      // For Data Validator, use dynamic analysis
-      let details = agentConfig.details.slice(0, taskIndex + 1);
-      if (agent.id === 'data-validator' && taskIndex === agentConfig.tasks.length - 1) {
-        // Last task - generate dynamic details
-        const analysis = await analyzeFileData(fileData);
-        details = [
-          `File type: ${analysis.fileType} detected`,
-          `Data rows: ${analysis.dataRows.toLocaleString()} records`,
-          `Quality score: ${analysis.qualityScore}%`,
-          `Missing values: ${analysis.missingValues}%`,
-          analysis.schemaGenerated ? 'Schema generated successfully' : 'Schema generation failed'
-        ];
-      }
+          // For Data Validator, use dynamic analysis
+          let details = agentConfig.details.slice(0, taskIndex + 1);
+          if (agent.id === 'data-validator' && taskIndex === agentConfig.tasks.length - 1) {
+            // Last task - generate dynamic details
+            const analysis = await analyzeFileData();
+            details = [
+              `File type: ${analysis.fileType} detected`,
+              `Data rows: ${analysis.dataRows.toLocaleString()} records`,
+              `Quality score: ${analysis.qualityScore}%`,
+              `Missing values: ${analysis.missingValues}%`,
+              analysis.schemaGenerated ? 'Schema generated successfully' : 'Schema generation failed'
+            ];
+          }
       
       setAgents(prev => prev.map((a, index) => 
         index === agentIndex 
@@ -337,7 +587,7 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
   };
 
   const handleEnterSandbox = () => {
-    onComplete(apiUrl, apiKey);
+    onComplete(apiUrl, apiKey, uploadedFiles);
   };
 
   return (
@@ -364,40 +614,422 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
             Our AI agents are building your intelligent knowledge API
           </Typography>
           
-          {/* Overall Progress */}
-          <Card sx={{ 
-            background: 'rgba(255, 255, 255, 0.05)', 
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            mb: 4
-          }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6" sx={{ color: 'white' }}>
-                  Overall Progress
+          {/* File Upload Section */}
+          {showFileUpload && (
+            <Card sx={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              mb: 4
+            }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h5" sx={{ color: 'white', mb: 3, textAlign: 'center' }}>
+                  📁 Upload Your Files
                 </Typography>
-                <Typography variant="h6" sx={{ color: '#4CAF50' }}>
-                  {Math.round(overallProgress)}%
-                </Typography>
-              </Box>
-              <LinearProgress 
-                variant="determinate" 
-                value={overallProgress}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  '& .MuiLinearProgress-bar': {
-                    background: 'linear-gradient(90deg, #4CAF50, #2E7D32)',
-                    borderRadius: 4
-                  }
-                }}
-              />
-            </CardContent>
-          </Card>
-        </Box>
+                
+                {/* Upload Method Tabs */}
+                <Box sx={{ display: 'flex', mb: 3, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <Button
+                    onClick={() => setUploadMethod('upload')}
+                    sx={{
+                      color: uploadMethod === 'upload' ? '#FFD700' : '#B0BEC5',
+                      borderBottom: uploadMethod === 'upload' ? '2px solid #FFD700' : '2px solid transparent',
+                      borderRadius: 0,
+                      px: 3,
+                      py: 1
+                    }}
+                  >
+                    📁 Upload Files
+                  </Button>
+                  <Button
+                    onClick={() => setUploadMethod('supabase')}
+                    sx={{
+                      color: uploadMethod === 'supabase' ? '#FFD700' : '#B0BEC5',
+                      borderBottom: uploadMethod === 'supabase' ? '2px solid #FFD700' : '2px solid transparent',
+                      borderRadius: 0,
+                      px: 3,
+                      py: 1
+                    }}
+                  >
+                    🔗 Connect URL
+                  </Button>
+                </Box>
 
-        {/* Agents Grid */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 3, mb: 4 }}>
+                {/* Upload Method Content */}
+                {uploadMethod === 'upload' ? (
+                  /* File Upload Dropzone */
+                  <Box
+                    {...getRootProps()}
+                    sx={{
+                      border: `2px dashed ${isDragActive ? '#FFD700' : 'rgba(255, 255, 255, 0.3)'}`,
+                      borderRadius: '12px',
+                      p: 4,
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        borderColor: '#FFD700',
+                        background: 'rgba(255, 215, 0, 0.05)'
+                      }
+                    }}
+                  >
+                    <input {...getInputProps()} />
+                    <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+                      {isDragActive ? '📂 Drop files here' : '📁 Drag & drop files here'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 3 }}>
+                      or click to browse files
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#757575' }}>
+                      Supports Excel (.xlsx, .xls), CSV (.csv), PDF (.pdf) • Max 10MB per file
+                    </Typography>
+                  </Box>
+                ) : (
+                  /* Supabase Connection */
+                  <Box>
+                    <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+                      Connect to Database
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 3 }}>
+                      Enter your database URL and API key to connect and import data.
+                    </Typography>
+                    
+                    <Box sx={{ mb: 2 }}>
+                      <TextField
+                        fullWidth
+                        value={supabaseUrl}
+                        onChange={(e) => setSupabaseUrl(e.target.value)}
+                        placeholder="https://your-database-url.com"
+                        disabled={isLoadingSupabase}
+                        sx={{
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            color: 'white',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.5)',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#FFD700',
+                            },
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            '&.Mui-focused': {
+                              color: '#FFD700',
+                            },
+                          },
+                          '& .MuiOutlinedInput-input': {
+                            color: 'white',
+                            '&::placeholder': {
+                              color: 'rgba(255, 255, 255, 0.5)',
+                            },
+                          },
+                        }}
+                      />
+                      
+                        <TextField
+                          fullWidth
+                          value={supabaseKey}
+                          onChange={(e) => setSupabaseKey(e.target.value)}
+                          placeholder="Your API key (required)"
+                          disabled={isLoadingSupabase}
+                        sx={{
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            color: 'white',
+                            '& fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.3)',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: 'rgba(255, 255, 255, 0.5)',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#FFD700',
+                            },
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            '&.Mui-focused': {
+                              color: '#FFD700',
+                            },
+                          },
+                          '& .MuiOutlinedInput-input': {
+                            color: 'white',
+                            '&::placeholder': {
+                              color: 'rgba(255, 255, 255, 0.5)',
+                            },
+                          },
+                        }}
+                      />
+                      
+                        <Button
+                          onClick={connectToSupabase}
+                          disabled={!supabaseUrl.trim() || !supabaseKey.trim() || isLoadingSupabase}
+                          sx={{
+                            background: 'linear-gradient(135deg, #3ECF8E 0%, #2E7D32 100%)',
+                            '&:hover': { background: 'linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)' },
+                            color: 'white',
+                            px: 4,
+                            py: 1.5,
+                            mb: 2
+                          }}
+                        >
+                          {isLoadingSupabase ? 'Connecting...' : '🔗 Connect to Database'}
+                        </Button>
+                    </Box>
+
+                    {supabaseError && (
+                      <Alert severity="error" sx={{ mb: 2 }}>
+                        {supabaseError}
+                      </Alert>
+                    )}
+
+                    {supabaseTables.length > 0 ? (
+                      <Box>
+                        <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+                          Available Tables ({supabaseTables.length})
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, maxHeight: '200px', overflow: 'auto' }}>
+                          {supabaseTables.map((table) => (
+                            <Card key={table.name} sx={{
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              p: 2,
+                              cursor: 'pointer',
+                              '&:hover': {
+                                background: 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box>
+                                  <Typography variant="body1" sx={{ color: 'white', fontWeight: 'bold' }}>
+                                    {table.name}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: '#B0BEC5' }}>
+                                    {table.columns.length} columns • {table.rowCount} rows
+                                  </Typography>
+                                </Box>
+                                <Button
+                                  size="small"
+                                  onClick={() => fetchSupabaseTable(table.name)}
+                                  disabled={isLoadingSupabase}
+                                  sx={{
+                                    background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)',
+                                    '&:hover': { background: 'linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)' },
+                                    color: 'white',
+                                    px: 2,
+                                    py: 0.5
+                                  }}
+                                >
+                                  {isLoadingSupabase ? 'Loading...' : '📥 Import'}
+                                </Button>
+                              </Box>
+                            </Card>
+                          ))}
+                        </Box>
+                      </Box>
+                    ) : showManualTableInput ? (
+                      <Box>
+                        <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+                          Manual Table Import
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 3 }}>
+                          No tables were found automatically. Please enter the name of a table you want to import.
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                          <TextField
+                            fullWidth
+                            value={manualTableName}
+                            onChange={(e) => setManualTableName(e.target.value)}
+                            placeholder="Enter table name (e.g., users, products, orders)"
+                            disabled={isLoadingSupabase}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                color: 'white',
+                                '& fieldset': {
+                                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                                },
+                                '&:hover fieldset': {
+                                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                                },
+                                '&.Mui-focused fieldset': {
+                                  borderColor: '#FFD700',
+                                },
+                              },
+                              '& .MuiInputLabel-root': {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                '&.Mui-focused': {
+                                  color: '#FFD700',
+                                },
+                              },
+                              '& .MuiOutlinedInput-input': {
+                                color: 'white',
+                                '&::placeholder': {
+                                  color: 'rgba(255, 255, 255, 0.5)',
+                                },
+                              },
+                            }}
+                          />
+                          <Button
+                            onClick={fetchManualTable}
+                            disabled={!manualTableName.trim() || isLoadingSupabase}
+                            sx={{
+                              background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)',
+                              '&:hover': { background: 'linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)' },
+                              color: 'white',
+                              px: 4,
+                              py: 1.5
+                            }}
+                          >
+                            {isLoadingSupabase ? 'Loading...' : '📥 Import Table'}
+                          </Button>
+                        </Box>
+                        <Button
+                          onClick={() => setShowManualTableInput(false)}
+                          sx={{ color: '#B0BEC5', textTransform: 'none' }}
+                        >
+                          ← Back to automatic discovery
+                        </Button>
+                      </Box>
+                    ) : null}
+                    
+                    <Typography variant="caption" sx={{ color: '#757575', mt: 2, display: 'block' }}>
+                      Connect to your database to import table data directly. Both URL and API key are required.
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* Uploaded Files */}
+                {uploadedFiles.length > 0 && (
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
+                      Uploaded Files ({uploadedFiles.length})
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {uploadedFiles.map((file) => (
+                        <Card key={file.id} sx={{
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          p: 2
+                        }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                              <Typography variant="body1" sx={{ color: 'white' }}>
+                                {file.file.name}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: '#B0BEC5' }}>
+                                {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Chip
+                                label={file.status}
+                                size="small"
+                                sx={{
+                                  backgroundColor: file.status === 'completed' ? '#4CAF50' : 
+                                                 file.status === 'error' ? '#F44336' : '#FF9800',
+                                  color: 'white'
+                                }}
+                              />
+                              {file.status === 'uploading' && (
+                                <Typography variant="caption" sx={{ color: '#B0BEC5' }}>
+                                  {file.progress}%
+                                </Typography>
+                              )}
+                              <Button
+                                size="small"
+                                onClick={() => removeFile(file.id)}
+                                sx={{ color: '#F44336', minWidth: 'auto', p: 0.5 }}
+                              >
+                                ✕
+                              </Button>
+                            </Box>
+                          </Box>
+                          {file.error && (
+                            <Alert severity="error" sx={{ mt: 1 }}>
+                              {file.error}
+                            </Alert>
+                          )}
+                        </Card>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Continue Button */}
+                {uploadedFiles.length > 0 && uploadedFiles.every(f => f.status === 'completed') && (
+                  <Box sx={{ textAlign: 'center', mt: 3 }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleContinueWithFiles}
+                      sx={{
+                        background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)',
+                        '&:hover': { background: 'linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)' },
+                        color: 'white',
+                        py: 1.5,
+                        px: 4,
+                        fontSize: '1.1rem'
+                      }}
+                    >
+                      Continue with {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''}
+                    </Button>
+                  </Box>
+                )}
+
+                {/* Upload Instructions */}
+                {uploadedFiles.length === 0 && (
+                  <Box sx={{ textAlign: 'center', mt: 3 }}>
+                    <Typography variant="body2" sx={{ color: '#B0BEC5' }}>
+                      {uploadMethod === 'upload' 
+                        ? 'Upload files or switch to Connect URL to get started'
+                        : 'Connect to database or switch to file upload'
+                      }
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </Box>
+          
+        {/* Overall Progress and Agents - Only show when workflow has started */}
+          {workflowStarted && (
+            <>
+              <Card sx={{ 
+                background: 'rgba(255, 255, 255, 0.05)', 
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                mb: 4
+              }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography variant="h6" sx={{ color: 'white' }}>
+                      Overall Progress
+                    </Typography>
+                    <Typography variant="h6" sx={{ color: '#4CAF50' }}>
+                      {Math.round(overallProgress)}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={overallProgress}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      '& .MuiLinearProgress-bar': {
+                        background: 'linear-gradient(90deg, #4CAF50, #2E7D32)',
+                        borderRadius: 4
+                      }
+                    }}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Agents Grid */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 3, mb: 4 }}>
           {agents.map((agent, index) => (
             <motion.div
               key={agent.id}
@@ -510,7 +1142,9 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
               </Card>
             </motion.div>
           ))}
-        </Box>
+              </Box>
+            </>
+          )}
 
         {/* Completion Section */}
         <AnimatePresence>

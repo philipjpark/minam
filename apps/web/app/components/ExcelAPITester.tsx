@@ -10,9 +10,10 @@ interface ExcelAPITesterProps {
   apiKey: string;
   onClose: () => void;
   preUploadedFile?: File;
+  uploadedFiles?: any[];
 }
 
-const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose, preUploadedFile }) => {
+const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose, preUploadedFile, uploadedFiles = [] }) => {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -173,24 +174,31 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
   });
 
   const testExcelQuery = async () => {
-    if (!query.trim() || !excelData) return;
+    if (!query.trim()) return;
     
     setLoading(true);
     setError(null);
     setResponse(null);
 
     try {
-      const formattedData = formatExcelDataForAI(excelData);
-      
-      const res = await fetch('/api/excel-agent', {
+      // Convert uploaded files to the format expected by multi-file agent
+      const files = uploadedFiles.map(file => ({
+        id: file.id,
+        fileName: file.file.name,
+        fileType: file.file.type.split('/')[1] || 'unknown',
+        data: file.data,
+        uploadTime: new Date().toISOString()
+      }));
+
+      const res = await fetch('/api/multi-file-agent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           query: query.trim(),
-          fileContent: formattedData,
-          fileName: excelData.fileName
+          files: files,
+          conversationHistory: [] // Could be enhanced to maintain conversation history
         }),
       });
 

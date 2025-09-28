@@ -110,9 +110,7 @@ Note: If this is a PDF file and you only have metadata (file name, size, type), 
       response: response,
       query: query,
       fileName: fileName,
-      timestamp: new Date().toISOString(),
-      model: selectedModel, // Use the actual selected model (gpt-5)
-      modelReasoning: modelReasoning
+      timestamp: new Date().toISOString()
     });
 
   } catch (error: any) {
