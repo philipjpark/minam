@@ -10,7 +10,7 @@ import SampleAPIDisplay from '../components/crypto/SampleAPIDisplay';
 import APITester from '../components/APITester';
 import ExcelAPITester from '../components/ExcelAPITester';
 import APIBuilder from '../components/APIBuilder';
-import CryptoAgentService, { CryptoDataset, APISpecification } from '../services/cryptoAgentService';
+// import CryptoAgentService, { CryptoDataset, APISpecification } from '../services/cryptoAgentService';
 import { DirectoryAnalysis } from '../services/openaiService';
 
 export default function Create() {
@@ -21,8 +21,8 @@ export default function Create() {
   const [showAPITester, setShowAPITester] = useState(false);
   const [showExcelAPITester, setShowExcelAPITester] = useState(false);
   const [showAPIBuilder, setShowAPIBuilder] = useState(false);
-  const [generatedAPI, setGeneratedAPI] = useState<APISpecification | null>(null);
-  const [selectedDataset, setSelectedDataset] = useState<CryptoDataset | null>(null);
+  // const [generatedAPI, setGeneratedAPI] = useState<APISpecification | null>(null);
+  // const [selectedDataset, setSelectedDataset] = useState<CryptoDataset | null>(null);
   const [directoryAnalysis, setDirectoryAnalysis] = useState<DirectoryAnalysis | null>(null);
   const [apiUrl, setApiUrl] = useState<string>('');
   const [apiKey, setApiKey] = useState<string>('');
@@ -44,9 +44,9 @@ export default function Create() {
     setShowAPIBuilder(true);
   };
 
-  const handleDatasetComplete = (dataset: CryptoDataset, requirements: any) => {
+  const handleDatasetComplete = (dataset: any, requirements: any) => {
     // Generate API specification
-    const apiSpec: APISpecification = {
+    const apiSpec: any = {
       endpoints: [
         {
           path: '/price',
@@ -157,8 +157,8 @@ export default function Create() {
       status: 'deployed'
     };
 
-    setGeneratedAPI(apiSpec);
-    setSelectedDataset(dataset);
+    // setGeneratedAPI(apiSpec);
+    // setSelectedDataset(dataset);
     setShowUploader(false);
     setShowDashboard(true);
   };
@@ -177,6 +177,7 @@ export default function Create() {
       <APIBuilder
         onComplete={handleAPIBuilderComplete}
         onClose={() => setShowAPIBuilder(false)}
+        fileData={directoryAnalysis}
       />
     );
   }
@@ -197,7 +198,7 @@ export default function Create() {
         apiUrl={apiUrl}
         apiKey={apiKey}
         onClose={() => setShowExcelAPITester(false)}
-        preUploadedFile={uploadedFile}
+        preUploadedFile={uploadedFile || undefined}
       />
     );
   }
@@ -228,15 +229,15 @@ export default function Create() {
     );
   }
 
-  if (showDashboard && generatedAPI && selectedDataset) {
-    return (
-      <RealTimeAPIDashboard
-        apiSpec={generatedAPI}
-        dataset={selectedDataset}
-        onClose={handleCloseDashboard}
-      />
-    );
-  }
+  // if (showDashboard && generatedAPI && selectedDataset) {
+  //   return (
+  //     <RealTimeAPIDashboard
+  //       apiSpec={generatedAPI}
+  //       dataset={selectedDataset}
+  //       onClose={handleCloseDashboard}
+  //     />
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-dark">

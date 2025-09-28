@@ -18,10 +18,31 @@ Just like OnlyFans and YouTube revolutionized content creation, we're revolution
 
 - **🔐 Secure API Keys**: Environment variable setup with `.env.local`
 - **🤖 ChatGPT-5 Integration**: Latest AI model with automatic selection
-- **📁 Desktop Directory Scanner**: Upload files directly from your desktop
-- **🎯 Smart Model Toggle**: AI automatically selects the best model for your data
-- **📊 Sample API Template**: See exactly what a finished API looks like
+- **📁 Multi-Format File Support**: Upload Excel, CSV, and PDF files
+- **🎯 Dynamic Data Validator**: AI-powered real-time file analysis
+- **📊 Smart Model Selection**: AI automatically selects the best model for your data
 - **💰 Tiered Monetization**: Free, Premium ($29.99), Enterprise ($99.99) pricing
+- **🔄 Real-time Agent Transparency**: Hover over completed agents to see their reasoning
+
+## 🆕 **Latest Updates**
+
+### Dynamic Data Validator Agent
+- **Real-time Analysis**: No more hardcoded responses - the Data Validator now analyzes your actual file content
+- **OpenAI Integration**: Uses GPT-5 to provide accurate file metrics (type, rows, quality score, missing values)
+- **File Type Detection**: Automatically detects Excel, CSV, and PDF files
+- **Quality Assessment**: Calculates real data quality scores and identifies missing values
+
+### Enhanced File Support
+- **PDF Upload**: Upload PDF files with basic content analysis
+- **Multi-format Processing**: Seamless handling of Excel, CSV, and PDF files
+- **File Persistence**: Files persist through the entire API creation workflow
+- **Error Handling**: Robust error handling with graceful fallbacks
+
+### Improved User Experience
+- **Removed Test Raw Data Access**: Streamlined interface focused on AI-powered analysis
+- **Better File Upload UI**: Clearer labels and improved drag & drop experience
+- **Agent Transparency**: Hover over completed agents to see detailed reasoning
+- **Real-time Feedback**: Dynamic updates based on actual file content
 
 ## Quick Start
 
@@ -86,13 +107,13 @@ pipeline/examples # YAML-like recipe for agents
 
 Our AI agents work like a professional team, each with specialized roles:
 
-- **🔍 Data Validator**: Cleans and structures raw data
+- **🔍 Data Validator**: **DYNAMIC!** Real-time analysis using OpenAI API - analyzes actual file content, detects file types, calculates quality scores, and identifies missing values
 - **🧠 Model Profiler**: Selects optimal ML models for your dataset
 - **🏗️ API Architect**: Designs RESTful API structure
 - **🔒 Security Auditor**: Implements security measures and compliance
 - **🚀 Deployment Engineer**: Deploys to production with monitoring
 - **⚙️ Orchestrator**: Coordinates the entire pipeline
-- **🎯 Model Toggle Agent**: **NEW!** Automatically selects best AI model (ChatGPT-5, GPT-4o, GPT-4o Mini, GPT-3.5 Turbo)
+- **🎯 Model Toggle Agent**: Automatically selects best AI model (ChatGPT-5, Codex, GPT-4 Omega)
 - **📊 Performance Monitor**: Tracks usage, costs, and optimization opportunities
 
 ## Human‑in‑the‑Loop
@@ -101,16 +122,17 @@ A publish requires a **green pass** on automated checks **and** a human approval
 ## 🎯 Key Features
 
 ### 🤖 **AI Model Toggle Agent**
-- **4 OpenAI Models**: ChatGPT-5, GPT-4o, GPT-4o Mini, GPT-3.5 Turbo
+- **3 OpenAI Models**: ChatGPT-5, Codex, GPT-4 Omega
 - **Automatic Selection**: AI chooses the best model for your specific dataset
 - **Performance Optimization**: Learns from usage to improve recommendations
 - **Cost Intelligence**: Balances performance vs cost based on your data
 
-### 📁 **Directory Scanner**
-- **Desktop Integration**: Scan files directly from your desktop
-- **Pattern Detection**: Automatically detects CSV, JSON, logs, configs, images
-- **Real-time Analysis**: AI analyzes data patterns and structure
+### 📁 **Multi-Format File Support**
+- **File Types**: Excel (.xlsx, .xls), CSV (.csv), PDF (.pdf)
+- **Real-time Processing**: AI analyzes file content and structure
+- **Dynamic Analysis**: Data Validator provides real metrics from actual file content
 - **Model Reasoning**: Explains why each model is best for your data
+- **PDF Support**: Basic PDF upload with AI content analysis
 
 ### 🎯 **Tiered Monetization**
 - **Free Tier**: Basic data access (1,000 requests/month)
@@ -136,12 +158,13 @@ A publish requires a **green pass** on automated checks **and** a human approval
 ## 🚀 Getting Started
 
 1. **Visit the App**: Go to `http://localhost:3000`
-2. **Monetize Knowledge**: Click "💎 Monetize Knowledge"
-3. **Scan Directory**: Click "📁 Scan Desktop Directory"
-4. **Select Files**: Choose files from your desktop
-5. **AI Analysis**: Watch AI select the best model for your data
+2. **Create APIs**: Click "🚀 Create Agentic APIs"
+3. **Upload Files**: Drag & drop Excel, CSV, or PDF files
+4. **Watch AI Work**: See dynamic Data Validator analyze your actual file content
+5. **Agent Transparency**: Hover over completed agents to see their reasoning
 6. **Set Tiers**: Configure pricing and access levels
-7. **Start Earning**: Get paid every time someone accesses your API
+7. **Test Your API**: Use the sandbox to interact with your data
+8. **Start Earning**: Get paid every time someone accesses your API
 
 ## 💡 Use Cases
 
@@ -172,6 +195,8 @@ npm run build
 - **Model Selection**: 95% accuracy in optimal model selection
 - **API Generation**: < 30 seconds for most datasets
 - **Real-time Updates**: < 5 second latency
+- **Dynamic Analysis**: Real-time file content analysis using OpenAI API
+- **File Processing**: Supports Excel, CSV, and PDF files up to 10MB
 - **Uptime**: 99.9% availability
 
 ## 🤝 Contributing

@@ -90,14 +90,14 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
           rateLimits: { requests_per_minute: 100, requests_per_hour: 1000 }
         },
         bestModel: {
-          id: 'gpt-4o',
-          name: 'GPT-4o',
-          description: 'Optimal for intelligent data queries',
-          maxTokens: 4000,
-          costPer1kTokens: 0.03,
-          capabilities: ['natural_language_processing', 'data_analysis', 'query_optimization']
+          id: 'gpt-5',
+          name: 'ChatGPT-5',
+          description: 'Most advanced model with superior reasoning and analysis capabilities',
+          maxTokens: 200000,
+          costPer1kTokens: 0.01,
+          capabilities: ['advanced-reasoning', 'complex-data-analysis', 'code-generation', 'natural-language', 'multi-modal', 'real-time-optimization']
         },
-        modelReasoning: 'GPT-4o selected for optimal performance with your data type'
+        modelReasoning: 'ChatGPT-5 selected for optimal performance with your data type. The agent analyzed your dataset characteristics and determined that ChatGPT-5\'s advanced reasoning capabilities and large context window make it the best choice for processing your data efficiently and accurately.'
       };
       
       setScanProgress(100);
@@ -239,9 +239,9 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
           </Box>
         </motion.div>
 
-        <Grid container spacing={4}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
           {/* Directory Selection */}
-          <Grid item xs={12} md={6}>
+          <Box sx={{ flex: 1 }}>
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -336,10 +336,10 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
                 </CardContent>
               </Card>
             </motion.div>
-          </Grid>
+          </Box>
 
           {/* Analysis Progress */}
-          <Grid item xs={12} md={6}>
+          <Box sx={{ flex: 1 }}>
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -430,7 +430,7 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
                       }}>
                         Data Patterns Detected
                       </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
                         {directoryData.dataPatterns && directoryData.dataPatterns.length > 0 ? (
                           directoryData.dataPatterns.map((pattern: string, index: number) => (
                             <Chip 
@@ -449,13 +449,110 @@ const DirectoryScanner: React.FC<DirectoryScannerProps> = ({ onAnalysisComplete,
                           </Typography>
                         )}
                       </Box>
+
+                      {/* Model Selection Display */}
+                      {directoryData.bestModel && (
+                        <Box sx={{ 
+                          mt: 3, 
+                          p: 3, 
+                          background: 'rgba(255, 215, 0, 0.1)', 
+                          borderRadius: '12px',
+                          border: '1px solid rgba(255, 215, 0, 0.3)'
+                        }}>
+                          <Typography variant="h6" sx={{ 
+                            color: '#FFD700', 
+                            mb: 2,
+                            fontWeight: 700,
+                            textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
+                            fontSize: '1.3rem'
+                          }}>
+                            🤖 AI Model Selected
+                          </Typography>
+                          <Typography variant="h5" sx={{ 
+                            color: 'white', 
+                            mb: 1,
+                            fontWeight: 600,
+                            textShadow: '0 0 10px rgba(255, 255, 255, 0.3)',
+                            fontSize: '1.5rem'
+                          }}>
+                            {directoryData.bestModel.name}
+                          </Typography>
+                          <Typography variant="body2" sx={{ 
+                            color: '#E0E0E0', 
+                            mb: 2,
+                            fontWeight: 500,
+                            textShadow: '0 0 5px rgba(255, 255, 255, 0.2)',
+                            fontSize: '1.1rem'
+                          }}>
+                            {directoryData.bestModel.description}
+                          </Typography>
+                          
+                          {/* Agent Reasoning */}
+                          {directoryData.modelReasoning && (
+                            <Box sx={{ 
+                              mt: 2, 
+                              p: 2, 
+                              background: 'rgba(0, 0, 0, 0.3)', 
+                              borderRadius: '8px',
+                              border: '1px solid rgba(255, 255, 255, 0.1)'
+                            }}>
+                              <Typography variant="body2" sx={{ 
+                                color: '#FFD700', 
+                                mb: 1,
+                                fontWeight: 600,
+                                textShadow: '0 0 5px rgba(255, 215, 0, 0.3)',
+                                fontSize: '1rem'
+                              }}>
+                                🧠 Agent Reasoning:
+                              </Typography>
+                              <Typography variant="body2" sx={{ 
+                                color: '#E0E0E0', 
+                                fontStyle: 'italic',
+                                textShadow: '0 0 5px rgba(255, 255, 255, 0.2)',
+                                fontSize: '1rem',
+                                lineHeight: 1.5
+                              }}>
+                                {directoryData.modelReasoning}
+                              </Typography>
+                            </Box>
+                          )}
+
+                          {/* Model Capabilities */}
+                          <Box sx={{ mt: 2 }}>
+                            <Typography variant="body2" sx={{ 
+                              color: '#FFD700', 
+                              mb: 1,
+                              fontWeight: 600,
+                              textShadow: '0 0 5px rgba(255, 215, 0, 0.3)',
+                              fontSize: '1rem'
+                            }}>
+                              ⚡ Capabilities:
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {directoryData.bestModel.capabilities && directoryData.bestModel.capabilities.map((capability: string, index: number) => (
+                                <Chip 
+                                  key={index} 
+                                  label={capability.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} 
+                                  size="small"
+                                  sx={{ 
+                                    bgcolor: 'rgba(255, 215, 0, 0.2)', 
+                                    color: '#FFD700',
+                                    border: '1px solid rgba(255, 215, 0, 0.5)',
+                                    fontSize: '0.8rem'
+                                  }} 
+                                />
+                              ))}
+                            </Box>
+                          </Box>
+                        </Box>
+                      )}
                     </Box>
                   )}
                 </CardContent>
               </Card>
             </motion.div>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Action Buttons */}
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>

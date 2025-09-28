@@ -96,31 +96,22 @@ class ModelToggleAgent {
         accuracy: 0.95
       },
       {
-        id: 'gpt-4o',
-        name: 'GPT-4o',
-        capabilities: ['complex-reasoning', 'data-analysis'],
-        costPer1kTokens: 0.005,
+        id: 'codex',
+        name: 'Codex',
+        capabilities: ['code-generation', 'technical-analysis', 'data-structures'],
+        costPer1kTokens: 0.008,
         maxTokens: 128000,
-        speed: 0.9,
-        accuracy: 0.92
+        speed: 0.85,
+        accuracy: 0.90
       },
       {
-        id: 'gpt-4o-mini',
-        name: 'GPT-4o Mini',
-        capabilities: ['data-analysis', 'fast-processing'],
-        costPer1kTokens: 0.00015,
-        maxTokens: 128000,
-        speed: 0.95,
-        accuracy: 0.88
-      },
-      {
-        id: 'gpt-3.5-turbo',
-        name: 'GPT-3.5 Turbo',
-        capabilities: ['basic-analysis', 'fast-processing'],
-        costPer1kTokens: 0.0005,
-        maxTokens: 16385,
-        speed: 0.98,
-        accuracy: 0.85
+        id: 'gpt-4-omega',
+        name: 'GPT-4 Omega',
+        capabilities: ['ultra-reasoning', 'enterprise-analysis', 'complex-problem-solving'],
+        costPer1kTokens: 0.015,
+        maxTokens: 256000,
+        speed: 0.75,
+        accuracy: 0.98
       }
     ];
 
@@ -130,63 +121,63 @@ class ModelToggleAgent {
       let reasoning = '';
 
       // Complexity scoring
-      if (characteristics.complexity === 'enterprise' && model.id === 'gpt-5') {
+      if (characteristics.complexity === 'enterprise' && model.id === 'gpt-4-omega') {
         score += 40;
-        reasoning += 'GPT-5 excels at enterprise-level complex data analysis. ';
-      } else if (characteristics.complexity === 'complex' && (model.id === 'gpt-5' || model.id === 'gpt-4o')) {
+        reasoning += 'GPT-4 Omega excels at enterprise-level complex data analysis. ';
+      } else if (characteristics.complexity === 'complex' && (model.id === 'gpt-5' || model.id === 'gpt-4-omega')) {
         score += 35;
         reasoning += `${model.name} handles complex data patterns well. `;
-      } else if (characteristics.complexity === 'moderate' && model.id === 'gpt-4o-mini') {
+      } else if (characteristics.complexity === 'moderate' && model.id === 'codex') {
         score += 30;
-        reasoning += 'GPT-4o Mini provides good balance for moderate complexity. ';
-      } else if (characteristics.complexity === 'simple' && model.id === 'gpt-3.5-turbo') {
+        reasoning += 'Codex provides excellent technical analysis for moderate complexity. ';
+      } else if (characteristics.complexity === 'simple' && model.id === 'gpt-5') {
         score += 25;
-        reasoning += 'GPT-3.5 Turbo is efficient for simple tasks. ';
+        reasoning += 'ChatGPT-5 is efficient for simple tasks with advanced capabilities. ';
       }
 
       // Size scoring
-      if (characteristics.size === 'massive' && model.id === 'gpt-5') {
+      if (characteristics.size === 'massive' && model.id === 'gpt-4-omega') {
         score += 25;
-        reasoning += 'GPT-5 handles massive datasets with superior context window. ';
-      } else if (characteristics.size === 'large' && (model.id === 'gpt-5' || model.id === 'gpt-4o')) {
+        reasoning += 'GPT-4 Omega handles massive datasets with ultra-large context window. ';
+      } else if (characteristics.size === 'large' && (model.id === 'gpt-5' || model.id === 'gpt-4-omega')) {
         score += 20;
         reasoning += `${model.name} suitable for large data processing. `;
-      } else if (characteristics.size === 'medium' && model.id === 'gpt-4o-mini') {
+      } else if (characteristics.size === 'medium' && model.id === 'codex') {
         score += 15;
-        reasoning += 'GPT-4o Mini efficient for medium-sized datasets. ';
-      } else if (characteristics.size === 'small' && model.id === 'gpt-3.5-turbo') {
+        reasoning += 'Codex efficient for medium-sized technical datasets. ';
+      } else if (characteristics.size === 'small' && model.id === 'gpt-5') {
         score += 10;
-        reasoning += 'GPT-3.5 Turbo cost-effective for small datasets. ';
+        reasoning += 'ChatGPT-5 cost-effective for small datasets with advanced capabilities. ';
       }
 
       // Real-time requirements
       if (characteristics.realTimeRequired && model.id === 'gpt-5') {
         score += 20;
-        reasoning += 'GPT-5 optimized for real-time processing. ';
-      } else if (characteristics.realTimeRequired && model.id === 'gpt-4o-mini') {
+        reasoning += 'ChatGPT-5 optimized for real-time processing. ';
+      } else if (characteristics.realTimeRequired && model.id === 'codex') {
         score += 15;
-        reasoning += 'GPT-4o Mini provides fast real-time processing. ';
+        reasoning += 'Codex provides fast real-time technical processing. ';
       }
 
       // Cost sensitivity
-      if (characteristics.costSensitivity === 'high' && model.id === 'gpt-4o-mini') {
+      if (characteristics.costSensitivity === 'high' && model.id === 'gpt-5') {
         score += 15;
         reasoning += 'Cost-effective choice for high-volume processing. ';
-      } else if (characteristics.costSensitivity === 'low' && model.id === 'gpt-5') {
+      } else if (characteristics.costSensitivity === 'low' && model.id === 'gpt-4-omega') {
         score += 10;
         reasoning += 'Premium model justified for high-value datasets. ';
       }
 
       // Pattern-specific scoring
-      if (characteristics.patterns.includes('Structured Data (CSV)') && model.id === 'gpt-4o-mini') {
+      if (characteristics.patterns.includes('Structured Data (CSV)') && model.id === 'codex') {
         score += 10;
-        reasoning += 'Excellent for structured data analysis. ';
+        reasoning += 'Excellent for structured data analysis and processing. ';
       }
-      if (characteristics.patterns.includes('JSON Data') && model.id === 'gpt-4o') {
+      if (characteristics.patterns.includes('JSON Data') && model.id === 'gpt-5') {
         score += 10;
         reasoning += 'Strong JSON processing capabilities. ';
       }
-      if (characteristics.patterns.includes('Log Files') && model.id === 'gpt-5') {
+      if (characteristics.patterns.includes('Log Files') && model.id === 'gpt-4-omega') {
         score += 15;
         reasoning += 'Advanced pattern recognition for log analysis. ';
       }
@@ -306,9 +297,8 @@ class ModelToggleAgent {
     // Get scores for all models
     const allModelScores = [
       { model: 'ChatGPT-5', score: 0, reasoning: '' },
-      { model: 'GPT-4o', score: 0, reasoning: '' },
-      { model: 'GPT-4o Mini', score: 0, reasoning: '' },
-      { model: 'GPT-3.5 Turbo', score: 0, reasoning: '' }
+      { model: 'Codex', score: 0, reasoning: '' },
+      { model: 'GPT-4 Omega', score: 0, reasoning: '' }
     ];
 
     // This would be populated with actual scoring logic

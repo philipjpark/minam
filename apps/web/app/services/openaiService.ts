@@ -65,28 +65,20 @@ class OpenAIService {
         capabilities: ['advanced-reasoning', 'complex-data-analysis', 'code-generation', 'natural-language', 'multi-modal', 'real-time-optimization']
       },
       {
-        id: 'gpt-4o',
-        name: 'GPT-4o',
-        description: 'Most capable model for complex reasoning and analysis',
+        id: 'codex',
+        name: 'Codex',
+        description: 'Specialized for code generation and technical analysis',
         maxTokens: 128000,
-        costPer1kTokens: 0.005,
-        capabilities: ['complex-reasoning', 'data-analysis', 'code-generation', 'natural-language']
+        costPer1kTokens: 0.008,
+        capabilities: ['code-generation', 'technical-analysis', 'data-structures', 'algorithm-optimization', 'debugging']
       },
       {
-        id: 'gpt-4o-mini',
-        name: 'GPT-4o Mini',
-        description: 'Faster and cheaper than GPT-4o, good for most tasks',
-        maxTokens: 128000,
-        costPer1kTokens: 0.00015,
-        capabilities: ['data-analysis', 'code-generation', 'natural-language', 'fast-processing']
-      },
-      {
-        id: 'gpt-3.5-turbo',
-        name: 'GPT-3.5 Turbo',
-        description: 'Fast and efficient for simple to moderate tasks',
-        maxTokens: 16385,
-        costPer1kTokens: 0.0005,
-        capabilities: ['natural-language', 'basic-analysis', 'fast-processing']
+        id: 'gpt-4-omega',
+        name: 'GPT-4 Omega',
+        description: 'Ultra-advanced reasoning model for complex enterprise tasks',
+        maxTokens: 256000,
+        costPer1kTokens: 0.015,
+        capabilities: ['ultra-reasoning', 'enterprise-analysis', 'multi-domain-expertise', 'strategic-planning', 'complex-problem-solving']
       }
     ];
   }

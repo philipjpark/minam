@@ -14,6 +14,7 @@ const APITester: React.FC<APITesterProps> = ({ apiUrl, apiKey, onClose }) => {
   const [response, setResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isJsonFormat, setIsJsonFormat] = useState(false);
 
   const testQuery = async () => {
     if (!query.trim()) return;
@@ -66,6 +67,56 @@ const APITester: React.FC<APITesterProps> = ({ apiUrl, apiKey, onClose }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatResponseForDisplay = (response: any) => {
+    if (isJsonFormat) {
+      return typeof response === 'string' ? response : JSON.stringify(response, null, 2);
+    } else {
+      // Human-readable format
+      if (typeof response === 'string') {
+        return response;
+      }
+      
+      if (response && typeof response === 'object') {
+        let formatted = '';
+        
+        // Add main response content
+        if (response.response || response.message) {
+          formatted += `📊 **API Response:**\n${response.response || response.message}\n\n`;
+        }
+        
+        // Add query information
+        if (response.query) {
+          formatted += `❓ **Your Query:** ${response.query}\n\n`;
+        }
+        
+        // Add API information
+        if (response.apiUrl || response.endpoint) {
+          formatted += `🔗 **API Endpoint:** ${response.apiUrl || response.endpoint}\n`;
+        }
+        
+        // Add status information
+        if (response.status) {
+          formatted += `✅ **Status:** ${response.status}\n`;
+        }
+        
+        // Add timestamp
+        if (response.timestamp) {
+          const date = new Date(response.timestamp);
+          formatted += `⏰ **Generated:** ${date.toLocaleString()}\n`;
+        }
+        
+        // Add any additional data
+        if (response.data) {
+          formatted += `\n📋 **Additional Data:**\n${JSON.stringify(response.data, null, 2)}\n`;
+        }
+        
+        return formatted.trim();
+      }
+      
+      return JSON.stringify(response, null, 2);
     }
   };
 
@@ -172,9 +223,29 @@ const APITester: React.FC<APITesterProps> = ({ apiUrl, apiKey, onClose }) => {
 
           {response && (
             <Box>
-              <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
-                API Response:
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ color: 'white' }}>
+                  API Response:
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => setIsJsonFormat(!isJsonFormat)}
+                  sx={{
+                    color: isJsonFormat ? '#4CAF50' : '#B0BEC5',
+                    borderColor: isJsonFormat ? '#4CAF50' : 'rgba(255, 255, 255, 0.3)',
+                    '&:hover': {
+                      borderColor: '#4CAF50',
+                      backgroundColor: 'rgba(76, 175, 80, 0.1)'
+                    },
+                    fontSize: '0.8rem',
+                    px: 2,
+                    py: 0.5
+                  }}
+                >
+                  {isJsonFormat ? '👤 Human View' : '📄 JSON View'}
+                </Button>
+              </Box>
               <Card sx={{ background: 'rgba(0, 0, 0, 0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 <CardContent>
                   <pre style={{ 
@@ -182,9 +253,11 @@ const APITester: React.FC<APITesterProps> = ({ apiUrl, apiKey, onClose }) => {
                     fontSize: '14px', 
                     overflow: 'auto',
                     whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word'
+                    wordBreak: 'break-word',
+                    fontFamily: isJsonFormat ? 'monospace' : 'inherit',
+                    lineHeight: isJsonFormat ? 1.4 : 1.6
                   }}>
-                    {JSON.stringify(response, null, 2)}
+                    {formatResponseForDisplay(response)}
                   </pre>
                 </CardContent>
               </Card>

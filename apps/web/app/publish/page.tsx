@@ -51,11 +51,11 @@ export default function Publish() {
                 <span className="text-3xl">🚀</span>
               </div>
     <h1 className="text-5xl font-bold text-glow mb-6">
-      Configure RAG API 
+      Configure Agentic API 
       <span className="text-primary-gold"> Tiers & Access</span>
     </h1>
     <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-      Set intelligent paywalls for your RAG API. Control access with tiered pricing - pay more, get more insights from your knowledge
+      Set intelligent paywalls for your Agentic API. Control access with tiered pricing - pay more, get more insights from your knowledge
     </p>
             </div>
 

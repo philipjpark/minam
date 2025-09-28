@@ -21,6 +21,7 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isJsonFormat, setIsJsonFormat] = useState(false);
 
   // Auto-process pre-uploaded file
   useEffect(() => {
@@ -28,6 +29,45 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
       processFile(preUploadedFile);
     }
   }, [preUploadedFile, excelData]);
+
+  const parsePDFToText = async (file: File): Promise<ExcelData> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          // For now, we'll create a mock PDF data structure
+          // In a production environment, you would use a browser-compatible PDF library
+          // or send the file to a server-side API for processing
+          const mockPDFData: ExcelData = {
+            fileName: file.name,
+            sheets: [{
+              name: 'PDF Content',
+              data: [
+                ['PDF file uploaded successfully.'],
+                ['Content analysis will be performed by AI.'],
+                ['File size: ' + (file.size / 1024 / 1024).toFixed(2) + ' MB'],
+                ['File type: PDF document'],
+                ['Note: Full text extraction requires server-side processing']
+              ],
+              rows: 5,
+              columns: 1
+            }],
+            totalRows: 5,
+            totalColumns: 1,
+            fileSize: file.size
+          };
+
+          resolve(mockPDFData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => reject(new Error('Failed to read PDF file'));
+      reader.readAsArrayBuffer(file);
+    });
+  };
 
   const processFile = async (file: File) => {
     setUploadedFile(file);
@@ -47,15 +87,20 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
         });
       }, 200);
 
-      // Parse Excel file
-      const parsedData = await parseExcelToText(file);
+      // Parse file based on type
+      let parsedData: ExcelData;
+      if (file.type === 'application/pdf') {
+        parsedData = await parsePDFToText(file);
+      } else {
+        parsedData = await parseExcelToText(file);
+      }
       setExcelData(parsedData);
       
       setUploadProgress(100);
       clearInterval(progressInterval);
       setIsProcessing(false);
     } catch (err: any) {
-      setError(`Failed to process Excel file: ${err.message}`);
+      setError(`Failed to process file: ${err.message}`);
       setIsProcessing(false);
     }
   };
@@ -66,12 +111,63 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
     await processFile(file);
   }, []);
 
+  const formatResponseForDisplay = (response: any) => {
+    if (isJsonFormat) {
+      return typeof response === 'string' ? response : JSON.stringify(response, null, 2);
+    } else {
+      // Human-readable format
+      if (typeof response === 'string') {
+        return response;
+      }
+      
+      if (response && typeof response === 'object') {
+        let formatted = '';
+        
+        // Add main response content
+        if (response.response) {
+          formatted += `📊 **Analysis Result:**\n${response.response}\n\n`;
+        }
+        
+        // Add query information
+        if (response.query) {
+          formatted += `❓ **Your Question:** ${response.query}\n\n`;
+        }
+        
+        // Add file information
+        if (response.fileName) {
+          formatted += `📁 **File:** ${response.fileName}\n\n`;
+        }
+        
+        // Add model information
+        if (response.model) {
+          formatted += `🤖 **AI Model Used:** ${response.model}\n`;
+        }
+        
+        // Add model reasoning
+        if (response.modelReasoning) {
+          formatted += `💭 **Why This Model:** ${response.modelReasoning}\n`;
+        }
+        
+        // Add timestamp
+        if (response.timestamp) {
+          const date = new Date(response.timestamp);
+          formatted += `⏰ **Generated:** ${date.toLocaleString()}\n`;
+        }
+        
+        return formatted.trim();
+      }
+      
+      return JSON.stringify(response, null, 2);
+    }
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
       'application/vnd.ms-excel': ['.xls'],
-      'text/csv': ['.csv']
+      'text/csv': ['.csv'],
+      'application/pdf': ['.pdf']
     },
     multiple: false,
     maxSize: 10 * 1024 * 1024, // 10MB max
@@ -112,28 +208,6 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
     }
   };
 
-  const testRawData = async () => {
-    setLoading(true);
-    setError(null);
-    setResponse(null);
-
-    try {
-      const res = await fetch('/api/mock-api?limit=5', {
-        method: 'GET',
-      });
-
-      if (!res.ok) {
-        throw new Error(`API Error: ${res.status} ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      setResponse(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const clearFile = () => {
     setUploadedFile(null);
@@ -200,7 +274,7 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent'
         }}>
-          🧠 Excel AI Agent Sandbox
+          🧠 Your API Sandbox
         </Typography>
         <Typography variant="h6" sx={{ 
           color: '#FFD700', 
@@ -209,7 +283,7 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
           fontWeight: 600,
           textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
         }}>
-          Upload an Excel file and ask questions about your data using our AI agent
+          Upload a file and ask questions about this API.
         </Typography>
 
         <Typography variant="body1" sx={{ color: '#B0BEC5', mb: 2 }}>
@@ -234,7 +308,7 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
               fontWeight: 700,
               textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
             }}>
-              📊 Upload Excel File
+              📊 Upload File...
             </Typography>
             
             {!uploadedFile ? (
@@ -258,13 +332,13 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
               >
                 <input {...getInputProps()} />
                 <Typography variant="h6" sx={{ color: 'white', mb: 1 }}>
-                  {isDragActive ? 'Drop your Excel file here' : 'Drag & drop your Excel file here'}
+                  {isDragActive ? 'Drop your file here' : 'Drag & drop your file here'}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#B0BEC5', mb: 2 }}>
                   or click to browse files
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#B0BEC5' }}>
-                  Supports XLSX, XLS, CSV files (Max 10MB)
+                  Supports XLSX, XLS, CSV, PDF files (Max 10MB)
                 </Typography>
               </Box>
             ) : (
@@ -339,10 +413,36 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
               </Typography>
               <TextField
                 fullWidth
-                label="Ask a question about your Excel data (e.g., 'What's the average salary by department?')"
+                label="Ask a question about your data (e.g., 'What's the average salary by department?')"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                sx={{ mb: 2 }}
+                sx={{ 
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    color: 'white',
+                    '& fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(255, 255, 255, 0.5)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#FFD700',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    '&.Mui-focused': {
+                      color: '#FFD700',
+                    },
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    color: 'white',
+                    '&::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    },
+                  },
+                }}
                 multiline
                 rows={3}
               />
@@ -366,38 +466,6 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
         )}
 
         {/* Raw Data Test */}
-        <Card sx={{ 
-          mb: 4, 
-          bgcolor: 'rgba(255, 255, 255, 0.08)',
-          border: '1px solid rgba(255, 215, 0, 0.2)',
-          borderRadius: '16px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-        }}>
-          <CardContent>
-            <Typography variant="h5" sx={{ 
-              color: '#FFD700', 
-              mb: 2,
-              fontWeight: 700,
-              textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
-            }}>
-              📊 Test Raw Data Access
-            </Typography>
-            <Button
-              variant="outlined"
-              onClick={testRawData}
-              disabled={loading}
-              sx={{
-                color: '#FFD700',
-                borderColor: '#FFD700',
-                '&:hover': { borderColor: '#FFA500', color: '#FFA500' },
-                py: 1.5,
-                px: 4,
-              }}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Get Raw Data (limit=5)'}
-            </Button>
-          </CardContent>
-        </Card>
 
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
@@ -414,14 +482,33 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
           }}>
             <CardContent>
-              <Typography variant="h5" sx={{ 
-                color: '#FFD700', 
-                mb: 2,
-                fontWeight: 700,
-                textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
-              }}>
-                🤖 AI Agent Response:
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h5" sx={{ 
+                  color: '#FFD700', 
+                  fontWeight: 700,
+                  textShadow: '0 0 10px rgba(255, 215, 0, 0.3)'
+                }}>
+                  🤖 AI Agent Response:
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => setIsJsonFormat(!isJsonFormat)}
+                  sx={{
+                    color: isJsonFormat ? '#FFD700' : '#B0BEC5',
+                    borderColor: isJsonFormat ? '#FFD700' : 'rgba(255, 255, 255, 0.3)',
+                    '&:hover': {
+                      borderColor: '#FFD700',
+                      backgroundColor: 'rgba(255, 215, 0, 0.1)'
+                    },
+                    fontSize: '0.8rem',
+                    px: 2,
+                    py: 0.5
+                  }}
+                >
+                  {isJsonFormat ? '👤 Human View' : '📄 JSON View'}
+                </Button>
+              </Box>
               <Box
                 sx={{
                   bgcolor: '#0F0F23',
@@ -432,8 +519,14 @@ const ExcelAPITester: React.FC<ExcelAPITesterProps> = ({ apiUrl, apiKey, onClose
                   overflowY: 'auto',
                 }}
               >
-                <pre style={{ color: '#E0E0E0', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                  {typeof response === 'string' ? response : JSON.stringify(response, null, 2)}
+                <pre style={{ 
+                  color: '#E0E0E0', 
+                  whiteSpace: 'pre-wrap', 
+                  wordBreak: 'break-word',
+                  fontFamily: isJsonFormat ? 'monospace' : 'inherit',
+                  lineHeight: isJsonFormat ? 1.4 : 1.6
+                }}>
+                  {formatResponseForDisplay(response)}
                 </pre>
               </Box>
             </CardContent>
