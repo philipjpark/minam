@@ -8,6 +8,11 @@
 
 *"Your knowledge is about to pay you handsomely."*
 
+### 🎥 **Watch the Demo**
+[![Minam Demo](https://img.youtube.com/vi/BNrB487K8rk/maxresdefault.jpg)](https://youtu.be/BNrB487K8rk)
+
+*Click the image above to watch the full demo of Minam in action*
+
 </div>
 
 **minam 미남** is the platform that democratizes API creation for knowledge creators. Transform your data, insights, and expertise into **tiered APIs** that pay you every time someone accesses your knowledge. Control who gets access and how much - set up tiers, fractionalize your data, and get paid for what you need with a pay-as-you-need model.
