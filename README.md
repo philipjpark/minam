@@ -22,7 +22,7 @@ Just like OnlyFans and YouTube revolutionized content creation, we're revolution
 ## 🚀 **What's New**
 
 - **🔐 Secure API Keys**: Environment variable setup with `.env.local`
-- **🤖 GPT-4o Integration**: Reliable AI model with automatic selection
+- **🤖 GPT-5 Integration**: Reliable AI model with automatic selection
 - **📁 Multi-Format File Support**: Upload Excel, CSV, and PDF files
 - **🎯 Dynamic Data Validator**: AI-powered real-time file analysis
 - **📊 Smart Model Selection**: AI automatically selects the best model for your data
@@ -138,7 +138,7 @@ A publish requires a **green pass** on automated checks **and** a human approval
 ## 🎯 Key Features
 
 ### 🤖 **AI Model Toggle Agent**
-- **3 OpenAI Models**: GPT-4o, Codex, GPT-4 Omega
+- **3 OpenAI Models**: GPT-4o, Codex, GPT-5
 - **Automatic Selection**: AI chooses the best model for your specific dataset
 - **Performance Optimization**: Learns from usage to improve recommendations
 - **Cost Intelligence**: Balances performance vs cost based on your data
@@ -241,11 +241,11 @@ npm run build
 
 MIT License - see [LICENSE](LICENSE) file for details
 
-## 🌟 Support
+<!-- ## 🌟 Support -->
 
-- **Documentation**: [docs.minam.com](https://docs.minam.com)
+<!-- - **Documentation**: [docs.minam.com](https://docs.minam.com)
 - **Discord**: [discord.gg/minam](https://discord.gg/minam)
-- **Twitter**: [@minam_api](https://twitter.com/minam_api)
+- **Twitter**: [@minam_api](https://twitter.com/minam_api) -->
 
 ---
 
