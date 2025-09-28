@@ -234,6 +234,18 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
     }
 
     try {
+      // Convert DirectoryAnalysis format to the format expected by analyze-file API
+      const convertedFileData = {
+        fileName: fileData.path || 'Unknown',
+        fileSize: 0, // DirectoryAnalysis doesn't have fileSize
+        totalRows: fileData.fileCount || 0,
+        totalColumns: fileData.fileTypes?.length || 0,
+        sheets: [{
+          name: 'Directory Structure',
+          data: fileData.dataPatterns?.map((pattern: string) => [pattern]) || [['No patterns detected']]
+        }]
+      };
+
       // Call OpenAI API to analyze the file data
       const response = await fetch('/api/analyze-file', {
         method: 'POST',
@@ -241,7 +253,7 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fileData: fileData,
+          fileData: convertedFileData,
           analysisType: 'data-validation'
         })
       });
@@ -256,8 +268,8 @@ const APIBuilder: React.FC<APIBuilderProps> = ({ onComplete, onClose, fileData }
       console.error('Error analyzing file data:', error);
       // Fallback to basic analysis
       return {
-        fileType: fileData.fileName?.split('.').pop()?.toUpperCase() || 'Unknown',
-        dataRows: fileData.totalRows || 0,
+        fileType: fileData.fileTypes?.[0]?.toUpperCase() || 'Unknown',
+        dataRows: fileData.fileCount || 0,
         qualityScore: 85,
         missingValues: 5,
         schemaGenerated: true

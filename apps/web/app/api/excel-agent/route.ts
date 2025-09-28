@@ -17,6 +17,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File content is required' }, { status: 400 });
     }
 
+    // Debug logging
+    console.log('Excel Agent API called with:', {
+      query: query.substring(0, 100) + '...',
+      fileName: fileName,
+      fileContentLength: fileContent.length,
+      fileContentPreview: fileContent.substring(0, 200) + '...'
+    });
+
     // Create a comprehensive prompt for file analysis
     const systemPrompt = `You are an expert data analyst and AI agent. You can analyze various file types including Excel files, CSV files, and PDF documents. You can answer questions about the data, perform calculations, identify patterns, and provide insights.
 
@@ -39,7 +47,9 @@ When analyzing data, always:
 5. Explain your reasoning clearly
 6. For PDFs, focus on content analysis and key information extraction
 
-File: ${fileName || 'Unknown'}`;
+File: ${fileName || 'Unknown'}
+
+IMPORTANT: If this is a PDF file, the content provided may be limited to metadata. In this case, provide general guidance about PDF analysis and suggest that the user upload the PDF content directly or provide more specific questions about what they want to analyze.`;
 
     const userPrompt = `Please analyze this file data and answer the following question: "${query}"
 
@@ -52,7 +62,12 @@ Please provide a comprehensive analysis that includes:
 3. Key insights and patterns
 4. Any recommendations or follow-up suggestions
 
-Note: If this is a PDF file, focus on extracting and analyzing the textual content and key information.`;
+Note: If this is a PDF file and you only have metadata (file name, size, type), please:
+- Acknowledge that this is a PDF file
+- Explain what type of analysis would be possible with full PDF content
+- Provide general guidance about PDF analysis
+- Suggest specific questions the user could ask about their PDF
+- Offer to help with PDF analysis once the full content is available`;
 
     // Model selection logic - Default to GPT-5 for API Builder final stage
     const queryLength = query.length;
@@ -64,15 +79,14 @@ Note: If this is a PDF file, focus on extracting and analyzing the textual conte
                               query.toLowerCase().includes('creative') ||
                               query.toLowerCase().includes('write');
     
-    let selectedModel = 'gpt-4o'; // Default fallback
+    let selectedModel = 'gpt-4o'; // Use GPT-4o for reliability
     let modelReasoning = 'GPT-4o selected for standard analysis';
     
-    // Default to GPT-5 for API Builder final stage (all queries)
-    selectedModel = 'gpt-5'; // Using GPT-5 for all API Builder final stage queries
+    // Use GPT-4o for all queries (reliable and capable)
     if (hasComplexAnalysis || queryLength > 50) {
-      modelReasoning = 'GPT-5 selected for advanced analysis and creative tasks in API Builder final stage';
+      modelReasoning = 'GPT-4o selected for advanced analysis and creative tasks';
     } else {
-      modelReasoning = 'GPT-5 selected for efficient processing in API Builder final stage';
+      modelReasoning = 'GPT-4o selected for efficient processing';
     }
 
     const completion = await openai.chat.completions.create({
@@ -86,6 +100,10 @@ Note: If this is a PDF file, focus on extracting and analyzing the textual conte
     });
 
     const response = completion.choices[0].message.content;
+
+    if (!response) {
+      throw new Error('No response from OpenAI API');
+    }
 
     return NextResponse.json({
       success: true,
@@ -118,6 +136,6 @@ export async function GET() {
       'Query answering'
     ],
     supportedFormats: ['xlsx', 'xls', 'csv', 'pdf'],
-    model: 'gpt-5'
+    model: 'gpt-4o'
   });
 }

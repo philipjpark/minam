@@ -40,7 +40,7 @@ ${JSON.stringify(fileData.sheets?.[0]?.data?.slice(0, 5) || [], null, 2)}
 Please provide a comprehensive data validation analysis.`;
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-5',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -69,6 +69,10 @@ Please provide a comprehensive data validation analysis.`;
     return NextResponse.json({ error: 'Invalid analysis type' }, { status: 400 });
   } catch (error) {
     console.error('Error in analyze-file API:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    }, { status: 500 });
   }
 }
