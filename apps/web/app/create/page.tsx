@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
+import FeedLayout from '../components/FeedLayout';
 import CryptoDatasetUploader from '../components/crypto/CryptoDatasetUploader';
 import RealTimeAPIDashboard from '../components/crypto/RealTimeAPIDashboard';
 import DirectoryScanner from '../components/crypto/DirectoryScanner';
@@ -14,6 +15,7 @@ import APIBuilder from '../components/APIBuilder';
 import { DirectoryAnalysis } from '../services/openaiService';
 
 export default function Create() {
+  const [viewMode, setViewMode] = useState<'feed' | 'builder'>('feed');
   const [showUploader, setShowUploader] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showDirectoryScanner, setShowDirectoryScanner] = useState(false);
@@ -180,6 +182,11 @@ export default function Create() {
 
   // Early returns for different views
 
+  // Show LinkedIn-style feed by default
+  if (viewMode === 'feed') {
+    return <FeedLayout />;
+  }
+
   if (showAPIBuilder) {
     return (
       <APIBuilder
@@ -253,6 +260,32 @@ export default function Create() {
       <Navbar />
       
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* View Mode Toggle */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-background-elevated rounded-lg p-1 border border-divider">
+            <button
+              onClick={() => setViewMode('feed')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'feed'
+                  ? 'bg-primary-gold text-background-dark'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              📱 Social Feed
+            </button>
+            <button
+              onClick={() => setViewMode('builder')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                viewMode === 'builder'
+                  ? 'bg-primary-gold text-background-dark'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              🛠️ API Builder
+            </button>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-primary rounded-2xl shadow-glow mb-6">
